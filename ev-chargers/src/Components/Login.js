@@ -44,11 +44,11 @@ function Login() {
         setErrorMessages({ name: "password", message: "" })
         if(validate(event))
         {
-            var formData = new FormData();
-            const u = event.target.email.value;
-            formData.append("email",u);
-            formData.append("password",event.target.password.value);
-            login(formData);
+            const sendData = {
+              Email : event.target.email.value,
+              Password : event.target.password.value
+            };
+            login(sendData);
 
         }
     }

@@ -54,9 +54,9 @@ function Register() {
     }
     const reg = async (data) => {
         const r = await RegisterUser(data);
-        if(r.status === 200){
+        if(r.status === 200 || r.status === 201){
             toast.success('successful registration!');
-            nav('/home/profile');
+            nav('/login');
         }
         else {
             toast.error('failed registration!');
@@ -73,14 +73,15 @@ function Register() {
         setErrorMessages({ name: "lastname", message: "" })
         setErrorMessages({ name: "usertype", message: "" })
         if (validate(event)) {
-            const formData = new FormData();
-            formData.append('Name', event.target.name.value);
-            formData.append('Lastname', event.target.lastname.value);
-            formData.append('Password', event.target.password.value);
-            formData.append('Email', event.target.email.value);
-            formData.append('UserType', event.target.usertype.value);
-
-            reg(formData, event.target.email.value);
+            const jsonData = {
+                Name: event.target.name.value,
+                Lastname: event.target.lastname.value,
+                Password: event.target.password.value,
+                Email: event.target.email.value,
+                UserType: event.target.usertype.value,
+            };
+            
+            reg(jsonData);            
 
         }
     }

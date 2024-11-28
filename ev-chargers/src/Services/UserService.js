@@ -44,19 +44,16 @@ const handleApiError = (error) => {
 
 export const RegisterUser = async (data) => {
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/user/register`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    console.log(data);
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, data);
     if(response.status === 200){
-      const decodedToken = decodeToken(response.data.token);
+     /*  const decodedToken = decodeToken(response.data.token);
 
       const user = User.fromObject(response.data.user);
 
       localStorage.setItem('encodedToken', JSON.stringify(response.data.token));
       localStorage.setItem('token', JSON.stringify(decodedToken));
-      localStorage.setItem('user', JSON.stringify(user));;
+      localStorage.setItem('user', JSON.stringify(user));; */
       return response;
       }
     return response;
@@ -67,21 +64,18 @@ export const RegisterUser = async (data) => {
 
 export const LoginUser = async (data) => {
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/user/login`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    if(response.status === 200){
-      const decodedToken = decodeToken(response.data.token);
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, data);
 
-      const user = User.fromObject(response.data.user);
-      localStorage.setItem('encodedToken', JSON.stringify(response.data.token));
-      localStorage.setItem('token', JSON.stringify(decodedToken));
+    if (response.status === 200) {
+      const { token, user } = response.data; 
+      const decodedToken = decodeToken(token);
+
+      localStorage.setItem('token', token); 
+      localStorage.setItem('decodedToken', JSON.stringify(decodedToken));
       localStorage.setItem('user', JSON.stringify(user));
+      
       return response;
-      }
-    else {
+    } else {
       toast.error('User not found!');
       return response;
     }
@@ -89,6 +83,7 @@ export const LoginUser = async (data) => {
     return handleApiError(error);
   }
 };
+
 
 
 export const GetUserData = async (username) => {

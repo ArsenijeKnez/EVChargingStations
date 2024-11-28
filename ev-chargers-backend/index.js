@@ -1,5 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('./Schemas/User');
+const Car = require('./Schemas/Car');
+const Station = require('./Schemas/Station');
 const cors = require('cors');
 const app = express();
 const port = 5000;
@@ -11,21 +17,6 @@ mongoose.connect('mongodb://localhost:27017/ev-charging', {
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-const stationSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
-  name: { type: String, required: true },
-  chargerType: { type: String, required: true },
-  chargerPower: { type: Number, required: true },
-  chargerAvailability: { type: String, required: true },
-  coordinates: {
-    lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
-  },
-  currentUserInfo: { type: String, required: false }
-});
-
-const Station = mongoose.model('Station', stationSchema);
-
 
 app.use(express.json());
 app.use(cors());
@@ -33,6 +24,101 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('Backend Running!');
 });
+
+
+app.post('/login', async (req, res) => {
+  try {
+    const { Email: email, Password: password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, type: user.type },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        type: user.type,
+      },
+    });
+  } catch (err) {
+    console.error('Error logging in user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+app.post('/register', async (req, res) => {
+
+  try {
+    const {
+      Name: name,
+      Lastname: lastName,
+      Password: password,
+      Email: email,
+      UserType: type
+    } = req.body;
+
+    if (!name || !lastName || !password || !email || !type) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already registered' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      name,
+      lastName,
+      password: hashedPassword,
+      email,
+      type,
+      cars: []
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        name: newUser.name,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        type: newUser.type,
+        accountCreationDate: newUser.accountCreationDate,
+        cars: newUser.cars,
+      },
+    });
+  } catch (err) {
+    console.error('Error registering user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 app.get('/stations', async (req, res) => {
   try {
@@ -44,7 +130,17 @@ app.get('/stations', async (req, res) => {
   }
 });
 
-app.post('/stations', async (req, res) => {
+app.get('/stationsGuest', async (req, res) => {
+  try {
+    const stations = await Station.find().select('id name coordinates');
+    res.json(stations);
+  } catch (err) {
+    console.error('Error fetching stations:', err);
+    res.status(500).send('Error fetching stations');
+  }
+});
+
+app.post('/stationsPost', async (req, res) => {
   const { id, name, chargerType, chargerPower, chargerAvailability, coordinates, currentUserInfo } = req.body;
 
   if (!id || !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
@@ -70,7 +166,7 @@ app.post('/stations', async (req, res) => {
 });
 
 
-app.post('/stations/bulk', async (req, res) => {
+app.post('/stationsPost/bulk', async (req, res) => {
   const stations = req.body;
 
   if (!Array.isArray(stations) || stations.length === 0) {
