@@ -7,7 +7,8 @@ import Map from "./Components/Map";
 import { ToastContainer, toast } from 'react-toastify';
 import PrivateRoute from './Components/PrivateRoute';
 import Register from "./Components/Register";
-import HomePage from "./Components/Register";
+import Profile from "./Components/Profile";
+import HomePage from "./Pages/HomePage";
 import Unauthorized from "./Components/Unathorized";
 import Header from "./Components/Header";
 import GuestPage from "./Pages/GuestPage";
@@ -15,9 +16,11 @@ import GuestPage from "./Pages/GuestPage";
 
 function App() {
   //const navigate = useNavigate();
-
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('encodedtoken');
   return (
-    <div><Header/>
+    <div>{/* <Header/> */}
     <div className="App">
       <ToastContainer position='top-right' autoClose={3000}/>
 
@@ -29,7 +32,9 @@ function App() {
         <Route path='/register' element={<PrivateRoute allowedRoles={['Guest']}><Register/></PrivateRoute>}/>
         </Route>
         <Route path='/unauthorized' element= {<Unauthorized/>}/>
-        <Route path='/home' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}/>
+        <Route path='/home' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}>
+          <Route path='/home/profile' element={<PrivateRoute allowedRoles={['Admin','User']}><Profile/></PrivateRoute>}/>
+        </Route>
         </Routes>
       </header>
       </div>

@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { GetUserData,EditProfile } from "../Services/UserService";
 import { Form, Button } from 'react-bootstrap';
 import {User, getUserFromLocalStorage} from "../Model/User";
-import { get } from "react-hook-form";
+//import { get } from "react-hook-form";
 
 function Profile()
 {
@@ -19,10 +19,6 @@ function Profile()
     const nav = useNavigate();
 
     useEffect(()=>{
-        const u = localStorage.getItem('user');
-        const t = localStorage.getItem('googleuser');
-        console.log(t);
-        setIsGoogleUser(t);
 
         const userData = getUserFromLocalStorage();
         setUserType(userData.Role());
@@ -115,14 +111,7 @@ function Profile()
             </div>
             <div className="m-2">
               <Form.Label>Email</Form.Label>
-              {
-              isGoogleUser==='false' &&
               <Form.Control type="email" name="email" defaultValue={email} onChange={handleEmailChange} />
-              }
-              {
-              isGoogleUser==='true' &&
-              <Form.Control type="email" name="email" defaultValue={email} onChange={handleEmailChange} disabled/>
-              }
               {renderErrorMessage("email")}
             </div>
             <div className="m-2">
