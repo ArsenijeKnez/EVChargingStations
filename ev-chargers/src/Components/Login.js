@@ -34,8 +34,15 @@ function Login() {
     const login = async(data) =>
     {
         const r = await LoginUser(data);
-        if(r && r.status === 200)
+        if(!r){
+          toast.error("Unknown error");
+        }
+        else if(r.status === 200)
           navigate('/home/profile');
+        else{
+          const errorMessage = r.response?.data || r.message;
+          toast.error(errorMessage);
+        }
     }
     const handleSubmit = (event) =>
     {

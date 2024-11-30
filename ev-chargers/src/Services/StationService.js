@@ -23,7 +23,7 @@ export const GetStations = async () => {
 
 export const GetStationsGuest = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/stationsGuest/`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/stations/guest`);
       return response;
     } catch (error) {
       return handleApiError(error);

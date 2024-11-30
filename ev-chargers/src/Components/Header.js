@@ -47,7 +47,7 @@ function Header() {
                     <Nav.Item>
 
                         <Link to='/home/admin/blockUser' className={`nav-link  ${location.pathname === '/home/admin/blockUser' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Verifications
+                            Block Users
                         </Link>
                     </Nav.Item>
 
@@ -55,16 +55,16 @@ function Header() {
 
                 {userRole === 'User' && (
                     <Nav.Item>
-                        <Link to='/home/dasdasdad' className={`nav-link  ${location.pathname === '/home/dasdasdad' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Passenger Pannel
+                        <Link to='/home/map' className={`nav-link  ${location.pathname === '/home/map' ? 'active link-light' : 'link-light hoverLink '}`}>
+                            EV Station Map
                         </Link>
                     </Nav.Item>
 
                 )}
                 {userRole === 'User' && (
                     <Nav.Item>
-                        <Link to='/home/reserveCharger' className={`nav-link  ${location.pathname === '/home/reserveCharger' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            New order
+                        <Link to='/home/addVehicle' className={`nav-link  ${location.pathname === '/home/addVehicle' ? 'active link-light' : 'link-light hoverLink '}`}>
+                            Add Vehicle
                         </Link>
                     </Nav.Item>
 
@@ -72,7 +72,7 @@ function Header() {
                 {userRole && (
                     <Nav.Item className={`${userRole === 'User' ? '' : 'ms-auto'}`}>
                         <Link to='/home/profile' className={`nav-link  ${location.pathname === '/home/profile' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Edit profile
+                            Edit Profile
                         </Link>
                     </Nav.Item>
                 )}
@@ -85,7 +85,7 @@ function Header() {
 
                 )}
                 {userRole && (
-                    <Nav.Item >
+                    <Nav.Item className="ms-auto">
                         <Button variant="outline-success" onClick={logout} className='btn btn-link link-light text-decoration-none'>
                             Log out
                         </Button>

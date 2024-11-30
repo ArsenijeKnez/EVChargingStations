@@ -13,7 +13,7 @@ function Header() {
             <Nav style={{ borderBottom: '3px solid #b0b0b0' }} >
                     <Nav.Item>
                         <Link to='/' className={` nav-link  ${location.pathname === '/' ? 'active link-light ' : 'link-light hoverLink '}`}>
-                            EV Map
+                            EV Station Map
                         </Link>
                     </Nav.Item>
                     <Nav.Item>

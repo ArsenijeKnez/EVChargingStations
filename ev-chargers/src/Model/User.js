@@ -1,12 +1,12 @@
 import React from 'react';
 
 export class User {
-    constructor(name, lastname, blocked, timeOfCreation, userType, email, id) {
+    constructor(name, lastName, blocked, timeOfCreation, type, email, id) {
         this.name = name;
-        this.lastname = lastname;
+        this.lastname = lastName;
         this.blocked = blocked;
         this.timeOfCreation = timeOfCreation;
-        this.userType = userType;
+        this.userType = type;
         this.email = email;
         this.id = id;
     }
@@ -27,10 +27,10 @@ export class User {
     static fromObject(obj) {
         return new User(
             obj.name,
-            obj.lastname,
+            obj.lastName,
             obj.address,
             obj.timeOfCreation,
-            obj.userType,
+            obj.type,
             obj.email,
             obj.id,
         );

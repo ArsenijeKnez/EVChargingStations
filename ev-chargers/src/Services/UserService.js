@@ -45,7 +45,7 @@ const handleApiError = (error) => {
 export const RegisterUser = async (data) => {
   try {
     console.log(data);
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/register`, data);
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/register`, data);
     if(response.status === 200){
      /*  const decodedToken = decodeToken(response.data.token);
 
@@ -64,16 +64,13 @@ export const RegisterUser = async (data) => {
 
 export const LoginUser = async (data) => {
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, data);
-
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, data);
     if (response.status === 200) {
       const { token, user } = response.data; 
       const decodedToken = decodeToken(token);
-
-      localStorage.setItem('token', token); 
-      localStorage.setItem('decodedToken', JSON.stringify(decodedToken));
+      localStorage.setItem('encodedToken', token); 
+      localStorage.setItem('token', JSON.stringify(decodedToken));
       localStorage.setItem('user', JSON.stringify(user));
-      
       return response;
     } else {
       toast.error('User not found!');
@@ -88,7 +85,7 @@ export const LoginUser = async (data) => {
 
 export const GetUserData = async (username) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/getUserData`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUserData`, {
       params: { username },
     });
     return response;
@@ -100,7 +97,9 @@ export const GetUserData = async (username) => {
 
 export const EditProfile = async (data) => {
   try {
-    const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/user/updateProfile`, data);
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/updateProfile`, data);
+    const user = response.data.user; 
+    localStorage.setItem('user', JSON.stringify(user));
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -109,7 +108,7 @@ export const EditProfile = async (data) => {
 
 export const GetUsers = async () => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/getUsers`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUsers`, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': JSON.parse(localStorage.getItem('encodedToken')),
@@ -124,7 +123,7 @@ export const GetUsers = async () => {
 
 export const VerifyUser= async (username, v) => {
   try {
-    const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/user/verify/${username}/${v}`, [], {
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/verify/${username}/${v}`, [], {
       headers: {
         'Content-Type': 'application/json',
         'Authorization':  JSON.parse(localStorage.getItem('encodedToken')),
@@ -138,11 +137,7 @@ export const VerifyUser= async (username, v) => {
 
 export const ChangeUserPassword = async (data) => {
   try {
-    const response = await axios.put(`${process.env.REACT_APP_API_URL}/api/user/changePassword`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/changePassword`, data);
     return response;
   } catch (error) {
     return handleApiError(error);

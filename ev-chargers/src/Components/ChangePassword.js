@@ -3,6 +3,7 @@ import { ChangeUserPassword } from "../Services/UserService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import {User, getUserFromLocalStorage} from "../Model/User";
+import { Form } from 'react-bootstrap';
 
 function ChangePassword()
 {
@@ -15,21 +16,20 @@ function ChangePassword()
         setErrorMessages({ name: "newPassword", message: "" })
         if(validate(event))
         {
-            var formData = new FormData();
             const u = getUserFromLocalStorage();
-            //console.log(u);
-            const token = localStorage.getItem('encodedtoken');
-           // const data = {Username:u,OldPassword:event.target.oldPassword.value,NewPassword:event.target.newPassword.value};
-            formData.append("Username",u.Username());
-            formData.append("NewPassword",event.target.newPassword.value);
-            formData.append("OldPassword",event.target.oldPassword.value);
-            const resp = await ChangeUserPassword(formData);
+            const newPassJson = {
+              Email : u.email,
+              OldPassword : event.target.oldPassword.value,
+              NewPassword : event.target.newPassword.value
+            };
+
+            const resp = await ChangeUserPassword(newPassJson);
             if(resp.status === 200){
                 toast.success('succesful pasword change!');
                 nav('/home');
             }
             else 
-                toast.error('wrong old password!');
+                toast.error(resp.data.message);
         }
     }
     const renderErrorMessage = (name) =>
@@ -52,10 +52,12 @@ function ChangePassword()
         return valid;
     }
     return(
-        <div className="mt-2">
-        <form onSubmit={handleSubmit}>
-          <div className="d-flex justify-content-center align-items-center">
-            <div className="d-flex flex-column border p-3 w-400px m-200px bg-light border border-gray rounded">
+      <div className="container mt-5 ">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <Form onSubmit={handleSubmit} className="bg-light border border-gray rounded">
+            <div className="card">
+              <div className="card-body">
               <div className="m-2">
                 <label htmlFor="oldPassword" className="form-label">Old password</label>
                 <input type="password" name="oldPassword" className="form-control" />
@@ -69,10 +71,13 @@ function ChangePassword()
               <div className="m-2">
                 <input type="submit" value="Change password" className="btn btn-success"/>
               </div>
-            </div>
-          </div>
-        </form>
-      </div>
+              </div>
+
+</div>
+</Form>
+</div>
+</div>
+</div>
     );
 }
 export default ChangePassword;

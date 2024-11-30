@@ -13,18 +13,16 @@ function Profile()
     const [name,setName] = useState('');
     const [lastname,setLastname] = useState('');
     const [email,setEmail] = useState('');
-    const [date,setDate]  = useState('');
-    const [userType,setUserType] = useState('');
-    const[formData,setFormData]=useState('');
+    const [id,setId] = useState('');
     const nav = useNavigate();
 
     useEffect(()=>{
 
         const userData = getUserFromLocalStorage();
-        setUserType(userData.Role());
         setName(userData.name);
         setLastname(userData.lastname);
         setEmail(userData.email);
+        setId(userData.id);
 
     },[])
     const renderErrorMessage = (name) =>
@@ -57,7 +55,7 @@ function Profile()
 
     const sendData = async(data) =>{
       const resp = await EditProfile(data);
-      if(resp.status === 200)
+      if(resp.status === 200 || resp.status === 201)
       {
         toast.success('succesful edit of profile!');
       }
@@ -73,14 +71,14 @@ function Profile()
         setErrorMessages({ name: "name", message: "" })
         setErrorMessages({ name: "lastname", message: "" })
         if (validate(event)) {
-            const formData = new FormData();
-            formData.append('name', event.target.name.value);
-            formData.append('lastname', event.target.lastname.value);
-            //formData.append('password', event.target.password.value);
-            formData.append('email', event.target.email.value);
-            formData.append('usertype', userType);
-            formData.append('timeOfCreation', userType);
-            sendData(formData);
+            const jsonData = {
+              Id: id,
+              Name: event.target.name.value,
+              Lastname: event.target.lastname.value,
+              Email: event.target.email.value,
+          };
+          
+          sendData(jsonData); 
         }
     }
     const handleNameChange = (event) => {
@@ -92,13 +90,13 @@ function Profile()
     const handleEmailChange = (event) => {
         setEmail(event.target.value);
     };
-    /*const handlePasswordChange = (event) => {
-        setPassword(event.target.value);
-    };*/
     return(
-        <Form onSubmit={handleSubmit} id="form">
-        <div className="d-flex justify-content-center align-items-center mt-2">
-          <div className="d-flex flex-column border border-gray rounded p-3 w-400px m-200px bg-light">
+      <div className="container mt-5 ">
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+      <Form onSubmit={handleSubmit}>
+      <div className="card">
+      <div className="card-body">
             <div className="m-2">
               <Form.Label>Name</Form.Label>
               <Form.Control type="text" name="name" defaultValue={name} onChange={handleNameChange} />
@@ -117,9 +115,12 @@ function Profile()
             <div className="m-2">
               <Button variant="success" type="submit" >Save</Button>
             </div>
-          </div>
+            </div>
+            </div>
+        </Form>
         </div>
-      </Form>
+        </div>
+        </div>
     );
 }
 export default Profile;

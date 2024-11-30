@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import "./Styles/ALL.css";
 import Login from "./Components/Login";
 import Map from "./Components/Map";
@@ -10,17 +9,15 @@ import Register from "./Components/Register";
 import Profile from "./Components/Profile";
 import HomePage from "./Pages/HomePage";
 import Unauthorized from "./Components/Unathorized";
-import Header from "./Components/Header";
 import GuestPage from "./Pages/GuestPage";
+import ChangePassword from "./Components/ChangePassword";
+import UserMap from "./Components/User/UserMap";
+
 
 
 function App() {
-  //const navigate = useNavigate();
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  localStorage.removeItem('encodedtoken');
   return (
-    <div>{/* <Header/> */}
+    <div>
     <div className="App">
       <ToastContainer position='top-right' autoClose={3000}/>
 
@@ -32,8 +29,10 @@ function App() {
         <Route path='/register' element={<PrivateRoute allowedRoles={['Guest']}><Register/></PrivateRoute>}/>
         </Route>
         <Route path='/unauthorized' element= {<Unauthorized/>}/>
-        <Route path='/home' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}>
+        <Route path='/home/' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}>
           <Route path='/home/profile' element={<PrivateRoute allowedRoles={['Admin','User']}><Profile/></PrivateRoute>}/>
+          <Route path='/home/map' element={<PrivateRoute allowedRoles={'User'}><UserMap/></PrivateRoute>}/>
+          <Route path='/home/changePassword' element={<PrivateRoute allowedRoles={['Admin','User']}><ChangePassword/></PrivateRoute>}/>
         </Route>
         </Routes>
       </header>
