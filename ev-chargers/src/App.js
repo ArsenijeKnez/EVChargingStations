@@ -11,6 +11,7 @@ import HomePage from "./Pages/HomePage";
 import Unauthorized from "./Components/Unathorized";
 import GuestPage from "./Pages/GuestPage";
 import ChangePassword from "./Components/ChangePassword";
+import AddVehicle from "./Components/User/AddVehicle";
 import UserMap from "./Components/User/UserMap";
 
 
@@ -33,6 +34,7 @@ function App() {
           <Route path='/home/profile' element={<PrivateRoute allowedRoles={['Admin','User']}><Profile/></PrivateRoute>}/>
           <Route path='/home/map' element={<PrivateRoute allowedRoles={'User'}><UserMap/></PrivateRoute>}/>
           <Route path='/home/changePassword' element={<PrivateRoute allowedRoles={['Admin','User']}><ChangePassword/></PrivateRoute>}/>
+          <Route path='/home/addVehicle' element={<PrivateRoute allowedRoles={['User']}><AddVehicle/></PrivateRoute>}/>
         </Route>
         </Routes>
       </header>

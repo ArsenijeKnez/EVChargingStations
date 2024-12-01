@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const stationSchema = new mongoose.Schema({
-  id: { type: Number, required: true },
+  stationId: { type: Number, unique: true },
   name: { type: String, required: true },
   chargerType: { type: String, required: true },
   chargerPower: { type: Number, required: true },
@@ -12,6 +13,8 @@ const stationSchema = new mongoose.Schema({
   },
   currentUserInfo: { type: String, required: false }
 });
+
+stationSchema.plugin(AutoIncrement, { inc_field: 'stationId' })
 
 const Station = mongoose.model('stations', stationSchema);
 

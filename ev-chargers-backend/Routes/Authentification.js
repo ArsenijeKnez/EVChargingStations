@@ -24,7 +24,7 @@ router.post('/login', async (req, res) => {
       }
   
       const token = jwt.sign(
-        { id: user._id, email: user.email, user_role: user.type },
+        { id: user.userId, email: user.email, user_role: user.type },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
         message: 'Login successful',
         token,
         user: {
-          id: user._id,
+          id: user.userId,
           name: user.name,
           lastName: user.lastName,
           email: user.email,
@@ -82,15 +82,7 @@ router.post('/login', async (req, res) => {
       await newUser.save();
   
       res.status(201).json({
-        message: 'User registered successfully',
-        user: {
-          name: newUser.name,
-          lastName: newUser.lastName,
-          email: newUser.email,
-          type: newUser.type,
-          accountCreationDate: newUser.accountCreationDate,
-          cars: newUser.cars,
-        },
+        message: 'User registered successfully'
       });
     } catch (err) {
       console.error('Error registering user:', err);

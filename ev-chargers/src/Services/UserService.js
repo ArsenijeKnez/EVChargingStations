@@ -120,15 +120,9 @@ export const GetUsers = async () => {
   }
 };
 
-
-export const VerifyUser= async (username, v) => {
+export const AddCar= async (data) => {
   try {
-    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/verify/${username}/${v}`, [], {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':  JSON.parse(localStorage.getItem('encodedToken')),
-      },
-    });
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/addCar`, data);
     return response;
   } catch (error) {
     return handleApiError(error);

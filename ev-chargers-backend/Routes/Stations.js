@@ -23,15 +23,14 @@ router.get('/', async (req, res) => {
   });
   
   router.post('/post', async (req, res) => {
-    const { id, name, chargerType, chargerPower, chargerAvailability, coordinates, currentUserInfo } = req.body;
+    const { name, chargerType, chargerPower, chargerAvailability, coordinates, currentUserInfo } = req.body;
   
-    if (!id || !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
+    if ( !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
       return res.status(400).send('All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
     }
   
     try {
       const newStation = new Station({ 
-        id, 
         name, 
         chargerType, 
         chargerPower, 
@@ -56,9 +55,9 @@ router.get('/', async (req, res) => {
     }
   
     for (let station of stations) {
-      const { id, name, chargerType, chargerPower, chargerAvailability, coordinates } = station;
-      if (!id || !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
-        return res.status(400).send('All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
+      const { name, chargerType, chargerPower, chargerAvailability, coordinates } = station;
+      if (!name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
+        return res.status(400).send('All fields (name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
       }
     }
   

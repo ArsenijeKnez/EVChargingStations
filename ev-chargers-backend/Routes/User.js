@@ -5,13 +5,13 @@ const router = express.Router();
 
 router.put('/updateProfile', async (req, res) => {
   try {
-    const { Id: id, Name: name, Lastname: lastName, Email: email } = req.body;
+    const { Id: userId, Name: name, Lastname: lastName, Email: email } = req.body;
 
-    if (!id || !name || !lastName || !email) {
+    if (!userId || !name || !lastName || !email) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const user = await User.findById(id);
+    const user = await User.findOne({userId});
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -31,7 +31,7 @@ router.put('/updateProfile', async (req, res) => {
     res.status(200).json({
       message: 'User profile updated successfully',
       user: {
-        id: user._id,
+        userId: user.userId,
         name: user.name,
         lastName: user.lastName,
         email: user.email,
@@ -72,5 +72,36 @@ router.put('/changePassword', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+  router.post('/addCar', async (req, res) => {
+    try {
+      const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, BatteryPercentage: batteryPercentage, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption} = req.body;
+  
+
+      if ( !model || !chargerType || !batteryCapacity || !batteryPercentage || !yearOfProduction || !averageConsumption) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+  
+      const newCar = new Car({
+        model,
+        chargerType,
+        batteryCapacity,
+        batteryPercentage,
+        yearOfProduction,
+        averageConsumption
+      });
+  
+      await newCar.save();
+  
+      res.status(201).json({
+        message: 'Car added successfully',
+        car: newCar
+      });
+    } catch (err) {
+      console.error('Error adding car:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
 
 module.exports = router;
