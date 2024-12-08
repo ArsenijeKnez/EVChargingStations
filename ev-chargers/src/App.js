@@ -13,6 +13,7 @@ import GuestPage from "./Pages/GuestPage";
 import ChangePassword from "./Components/ChangePassword";
 import AddVehicle from "./Components/User/AddVehicle";
 import UserMap from "./Components/User/UserMap";
+import EventLogs from "./Components/Admin/EventLogs";
 
 
 
@@ -35,6 +36,9 @@ function App() {
           <Route path='/home/map' element={<PrivateRoute allowedRoles={'User'}><UserMap/></PrivateRoute>}/>
           <Route path='/home/changePassword' element={<PrivateRoute allowedRoles={['Admin','User']}><ChangePassword/></PrivateRoute>}/>
           <Route path='/home/addVehicle' element={<PrivateRoute allowedRoles={['User']}><AddVehicle/></PrivateRoute>}/>
+          {/* <Route path='/home/admin' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}> */}
+            <Route path='/home/admin/EventLogs' element={<PrivateRoute allowedRoles={['Admin']}><EventLogs/></PrivateRoute>}/>
+          {/* </Route> */}
         </Route>
         </Routes>
       </header>

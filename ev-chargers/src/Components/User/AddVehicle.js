@@ -1,14 +1,32 @@
-import { AddCar } from "../../Services/UserService";
-import { useState } from "react";
+import { GetCars, AddCar } from "../../Services/UserService";
+import {getUserFromLocalStorage} from "../../Model/User";
+import { useState ,  useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Form, Button } from 'react-bootstrap';
+import ListVehicles from './ListVehicles';
 
  
 function AddVehicle() {
     const [errorMessages, setErrorMessages] = useState({});
     const nav = useNavigate();
+    const [cars, setCars] = useState([]);
+
+    useEffect(() => {
+        const fetchCars = async () => {
+            const user = getUserFromLocalStorage();
+            try {
+              const response = await GetCars(user.id);
+ 
+              setCars(response.data.cars);
+            } catch (error) {
+              console.error('Error fetching cars:', error);
+            }
+          };
+    
+        fetchCars();
+    }, []);
 
     const renderErrorMessage = (name) =>
         name === errorMessages.name && (
@@ -17,12 +35,11 @@ function AddVehicle() {
 
     function validate(event) {
         var valid = true;
-        const model = event.target.password.value;
-        const chargerType = event.target.password2.value;
-        const batteryCapacity = event.target.email.value;
-        const batteryPercentage = event.target.name.value;
-        const yearOfProduction = event.target.lastname.value;
-        const averageConsumption = event.target.usertype.value;
+        const model = event.target.model.value;
+        const chargerType = event.target.chargerType.value;
+        const batteryCapacity = event.target.batteryCapacity.value;
+        const yearOfProduction = event.target.yearOfProduction.value;
+        const averageConsumption = event.target.averageConsumption.value;
 
         if (model.trim() === "") {
             setErrorMessages({ name: "model", message: "Model is required!" });
@@ -34,10 +51,6 @@ function AddVehicle() {
         }
         if (batteryCapacity.trim() === "") {
             setErrorMessages({ name: "batteryCapacity", message: "Battery capacity is required!" });
-            valid = false;
-        }
-        if (batteryPercentage.trim() === "") {
-            setErrorMessages({ name: "batteryPercentage", message: "Battery percentage is required!" });
             valid = false;
         }
         if (yearOfProduction.trim() === "") {
@@ -56,7 +69,7 @@ function AddVehicle() {
         const r = await AddCar(data);
         if(r.status === 200 || r.status === 201){
             toast.success('successfuly added vehicle!');
-            nav('/login');
+            nav('/home/profile');
         }
         else {
             toast.error('failed vehicle registration!');
@@ -70,17 +83,15 @@ function AddVehicle() {
         setErrorMessages({ name: "model", message: "" })
         setErrorMessages({ name: "chargerType", message: "" })
         setErrorMessages({ name: "batteryCapacity", message: "" })
-        setErrorMessages({ name: "batteryPercentage", message: "" })
         setErrorMessages({ name: "yearOfProduction", message: "" })
         setErrorMessages({ name: "averageConsumption", message: "" })
         if (validate(event)) {
             const jsonData = {
-                model: event.target.password.value,
-                chargerType: event.target.password2.value,
-                batteryCapacity: event.target.email.value,
-                batteryPercentage: event.target.name.value,
-                yearOfProduction: event.target.lastname.value,
-                averageConsumption: event.target.usertype.value
+                Model: event.target.model.value,
+                ChargerType: event.target.chargerType.value,
+                BatteryCapacity: event.target.batteryCapacity.value,
+                YearOfProduction: event.target.yearOfProduction.value.toString(),
+                AverageConsumption: event.target.averageConsumption.value
             };
             
             add(jsonData);            
@@ -89,7 +100,9 @@ function AddVehicle() {
     }
     return (
         <>
+        <ListVehicles cars = {cars}/>
                 <div className="container mt-5 ">
+                    <h3>Add New Vehicle</h3>
         <div className="row justify-content-center">
           <div className="col-md-6">
         <Form onSubmit={handleSubmit}>
@@ -109,7 +122,7 @@ function AddVehicle() {
 
                     <Form.Group controlId="batteryCapacity">
                         <Form.Label>Battery Capacity</Form.Label>
-                        <Form.Control type="text" name="batteryCapacity" />
+                        <Form.Control type="number" name="batteryCapacity" />
                         {renderErrorMessage("batteryCapacity")}
                     </Form.Group>
 
@@ -121,7 +134,7 @@ function AddVehicle() {
 
                     <Form.Group controlId="averageConsumption">
                         <Form.Label>Average Consumption</Form.Label>
-                        <Form.Control type="text" name="averageConsumption" />
+                        <Form.Control type="number" name="averageConsumption" />
                         {renderErrorMessage("averageConsumption")}
                     </Form.Group>
 

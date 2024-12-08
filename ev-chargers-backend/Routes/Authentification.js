@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../Schemas/User');
+const EventLog = require('../Schemas/EventLog');
 const router = express.Router();
 
 
@@ -20,14 +21,25 @@ router.post('/login', async (req, res) => {
   
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
+        await EventLog.create({
+            description: 'Invalid login attempt',
+            eventType: 'error',
+            userId: user.userId,
+        });
         return res.status(400).json({ message: 'Invalid credentials' });
-      }
+    }
   
       const token = jwt.sign(
         { id: user.userId, email: user.email, user_role: user.type },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );
+
+      const o = await EventLog.create({
+        description: 'User logged in successfully',
+        eventType: 'info',
+        userId: user.userId,
+      });
   
       res.status(200).json({
         message: 'Login successful',
@@ -78,9 +90,15 @@ router.post('/login', async (req, res) => {
         type,
         cars: []
       });
-  
+      
       await newUser.save();
-  
+      
+      await EventLog.create({
+        description: 'User registered successfully',
+        eventType: 'info',
+        userId: newUser.userId,
+      });
+
       res.status(201).json({
         message: 'User registered successfully'
       });

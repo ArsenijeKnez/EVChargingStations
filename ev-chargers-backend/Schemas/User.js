@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
-const carSchema = require('./CarSchema'); 
 const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const userSchema = new Schema({
@@ -11,11 +10,10 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   type: { type: String, required: true, enum: ['User', 'Admin'] },
   accountCreationDate: { type: Date, default: Date.now },
-  cars: { type: [carSchema], default: [] }
+  cars: { type: [Number], default: [], required: false }
 });
 
-userSchema.plugin(AutoIncrement, { inc_field: 'userId' })
-
+userSchema.plugin(AutoIncrement, { inc_field: 'userId' });
 const User = mongoose.model('users', userSchema);
 
 module.exports = User;

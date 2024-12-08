@@ -75,10 +75,10 @@ router.put('/changePassword', async (req, res) => {
 
   router.post('/addCar', async (req, res) => {
     try {
-      const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, BatteryPercentage: batteryPercentage, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption} = req.body;
+      
+      const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption} = req.body;
   
-
-      if ( !model || !chargerType || !batteryCapacity || !batteryPercentage || !yearOfProduction || !averageConsumption) {
+      if ( !model || !chargerType || !batteryCapacity || !yearOfProduction || !averageConsumption) {
         return res.status(400).json({ message: 'All fields are required' });
       }
   
@@ -86,7 +86,7 @@ router.put('/changePassword', async (req, res) => {
         model,
         chargerType,
         batteryCapacity,
-        batteryPercentage,
+        batteryPercentage:100,
         yearOfProduction,
         averageConsumption
       });
@@ -99,6 +99,29 @@ router.put('/changePassword', async (req, res) => {
       });
     } catch (err) {
       console.error('Error adding car:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  router.get('/getCars', async (req, res) => {
+    try {
+      
+      const {Id : userId} = req.query;
+
+      if (!userId) {
+        return res.status(400).json({ message: 'User id is missing' });
+      }
+
+      const user = await User.findOne({userId})
+      const carIDs = user.cars;
+
+      const cars = await Car.find({ carId: { $in: carIDs } });
+      res.status(200).json({
+        message: 'Car fetched successfully',
+        cars: cars
+      });
+    } catch (err) {
+      console.error('Error fetching cars:', err);
       res.status(500).json({ message: 'Server error' });
     }
   });

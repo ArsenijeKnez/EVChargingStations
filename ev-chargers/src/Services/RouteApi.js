@@ -13,7 +13,7 @@ const getRoute = async (start, end) => {
   
       if (response.data.routes && response.data.routes[0].geometry) {
         const encodedGeometry = response.data.routes[0].geometry;
-        return polyline.decode(encodedGeometry); // Decodes to an array of [lat, lng]
+        return polyline.decode(encodedGeometry); 
       } else {
         throw new Error("Invalid response structure");
       }

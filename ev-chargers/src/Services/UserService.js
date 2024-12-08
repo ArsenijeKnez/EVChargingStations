@@ -82,11 +82,10 @@ export const LoginUser = async (data) => {
 };
 
 
-
-export const GetUserData = async (username) => {
+export const GetUserData = async (email) => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUserData`, {
-      params: { username },
+      params: { email },
     });
     return response;
   } catch (error) {
@@ -106,23 +105,21 @@ export const EditProfile = async (data) => {
   }
 };
 
-export const GetUsers = async () => {
+
+export const AddCar = async (data) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUsers`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': JSON.parse(localStorage.getItem('encodedToken')),
-      },
-    });
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/addCar`, data);
     return response;
   } catch (error) {
     return handleApiError(error);
   }
 };
 
-export const AddCar= async (data) => {
+export const GetCars = async (data) => {
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/addCar`, data);
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getCars`, {params: {
+      Id: data, 
+    },});
     return response;
   } catch (error) {
     return handleApiError(error);
