@@ -12,10 +12,12 @@ function AddVehicle() {
     const [errorMessages, setErrorMessages] = useState({});
     const nav = useNavigate();
     const [cars, setCars] = useState([]);
+    const [userId, setUserId] = useState("");
 
     useEffect(() => {
         const fetchCars = async () => {
             const user = getUserFromLocalStorage();
+            setUserId(user.id);
             try {
               const response = await GetCars(user.id);
  
@@ -91,7 +93,8 @@ function AddVehicle() {
                 ChargerType: event.target.chargerType.value,
                 BatteryCapacity: event.target.batteryCapacity.value,
                 YearOfProduction: event.target.yearOfProduction.value.toString(),
-                AverageConsumption: event.target.averageConsumption.value
+                AverageConsumption: event.target.averageConsumption.value,
+                UserId: userId
             };
             
             add(jsonData);            

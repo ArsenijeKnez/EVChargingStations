@@ -76,9 +76,9 @@ router.put('/changePassword', async (req, res) => {
   router.post('/addCar', async (req, res) => {
     try {
       
-      const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption} = req.body;
+      const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption, UserId: userId} = req.body;
   
-      if ( !model || !chargerType || !batteryCapacity || !yearOfProduction || !averageConsumption) {
+      if ( !model || !chargerType || !batteryCapacity || !yearOfProduction || !averageConsumption || !userId) {
         return res.status(400).json({ message: 'All fields are required' });
       }
   
@@ -90,9 +90,18 @@ router.put('/changePassword', async (req, res) => {
         yearOfProduction,
         averageConsumption
       });
-  
+
+      const user = await User.findOne({ userId });
+
+      if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+      }
+      
       await newCar.save();
-  
+
+      user.cars.push(newCar.carId);
+      await user.save();
+
       res.status(201).json({
         message: 'Car added successfully',
         car: newCar
