@@ -88,7 +88,8 @@ router.post('/login', async (req, res) => {
         password: hashedPassword,
         email,
         type,
-        cars: []
+        cars: [],
+        blocked: false
       });
       
       await newUser.save();

@@ -2,7 +2,7 @@ import React from 'react';
 
 const ListVehicles = ({ cars }) => {
   return (
-    <div className="cars-viewer">
+    <div className="table-viewer">
       <h2>User Vehicles</h2>
       {cars.length === 0 ? (
         <p>User still has no cars.</p>

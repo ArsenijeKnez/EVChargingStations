@@ -1,5 +1,6 @@
 const express = require('express');
 const EventLog = require('../Schemas/EventLog');
+const User = require('../Schemas/User');
 const router = express.Router();
 
 router.get('/logs', async (req, res) => {
@@ -28,6 +29,34 @@ router.post('/logs/filter', async (req, res) => {
     res.status(200).json(logs);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch filtered logs' });
+  }
+});
+
+router.get('/getUsers', async (req, res) => {
+  try {
+    const users = await User.find({type: 'User'});
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch logs' });
+  }
+});
+
+router.post('/unBlockUser', async (req, res) => {
+  try {
+    const {UserId: userId} = req.body;
+
+    const user = await User.findOne({ userId });
+    user.blocked = !user.blocked;
+
+    const message = user.blocked? 'User blocked' : 'User unblocked';
+
+    user.save();
+    
+    res.status(200).json({
+      message: message
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to block user' });
   }
 });
 

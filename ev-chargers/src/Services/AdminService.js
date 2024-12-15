@@ -32,14 +32,19 @@ export const GetLogsFilterd = async (data) => {
 
   export const GetUsers = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUsers`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': JSON.parse(localStorage.getItem('encodedToken')),
-        },
-      });
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/getUsers`);
       return response;
     } catch (error) {
       return handleApiError(error);
     }
   };
+
+  
+export const UnBlockUser = async (data) => {
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/admin/unBlockUser`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};

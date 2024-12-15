@@ -126,6 +126,16 @@ export const GetCars = async (data) => {
   }
 };
 
+
+export const ChangeCarBattery = async(data) =>{
+  try {
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/changeBattery`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
 export const ChangeUserPassword = async (data) => {
   try {
     const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/changePassword`, data);
@@ -134,3 +144,4 @@ export const ChangeUserPassword = async (data) => {
     return handleApiError(error);
   }
 };
+

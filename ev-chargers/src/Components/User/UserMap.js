@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
-import { GetCars } from "../../Services/UserService";
+import { GetCars, ChangeCarBattery } from "../../Services/UserService";
 import { getRoute } from "../../Services/RouteApi";
 import {getUserFromLocalStorage} from "../../Model/User";
 import "leaflet/dist/leaflet.css";
@@ -27,25 +27,54 @@ const customIcon = L.icon({
   popupAnchor: [0, -30],
 });
 
-const handleReserve = (stationId) => {
-  console.log("Reserved station:", stationId);
-};
 
 const UserMap = () => {
   const [stations, setStations] = useState([]);
   const [cars, setCars] = useState([]);
   const [userId, setUserId] = useState("");
   const [selectedCar, setSelectedCar] = useState(null);
-  const [route, setRoute] = useState([]); 
+  const [travelRoute, setTravelRoute] = useState([]);  
   const [currentPositionIndex, setCurrentPositionIndex] = useState(0); 
+  const [reservedStation, setStation] = useState(0);
+
+  const handleReserve = async (station) => {
+    if(!currentPositionIndex || !travelRoute){
+      toast.info("Location must be turned to reserve station");
+      return;
+    }
+    if(selectedCar.chargerType !== station.chargerType){
+      toast.warning("Charger types are incompatible");
+      return;
+    }
+
+    const routs = await getRoute([travelRoute[currentPositionIndex][1],travelRoute[currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
+    if(routs)
+    {
+      setTravelRoute(routs);
+    }
+    setStation(station);
+  };
+  
+  const handleDestinationReach = ()=> {
+    if(!reservedStation){
+      setCurrentPositionIndex(0);
+      return;
+    }
+    
+  }
 
   const handleLocationClick = async () =>{
     if(selectedCar){
       //const start = [19.822353, 45.240025];
       //const end = [19.851402, 45.245271];
       //const routeCoordinates = await getRoute(start, end);
-      setRoute(positions);
-      setCurrentPositionIndex(0);
+      if(travelRoute.length > 0){
+        setTravelRoute([]);
+      }
+      else{
+        setTravelRoute(positions);
+        //setCurrentPositionIndex(0);
+      }
       //console.log(routeCoordinates);
     }
     else{
@@ -53,18 +82,27 @@ const UserMap = () => {
     }
   };
 
+  const handleCarSelection =()=> {
+    setSelectedCar(car);
+  }
+
   useEffect(() => {
-    if(route.length > 0){
-    if (currentPositionIndex >= route.length - 1) {
-      setCurrentPositionIndex(0);
+    if(travelRoute.length > 0 && selectedCar && selectedCar.batteryPercentage != 0){
+    if (currentPositionIndex >= travelRoute.length - 1) {
+      handleDestinationReach();
     }
     const interval = setInterval(() => {
       setCurrentPositionIndex((prevIndex) => prevIndex + 1);
+      selectedCar.batteryPercentage -= 1;
+      const data = {CarId: selectedCar.carId,
+                    BatteryPercentage: selectedCar.batteryPercentage
+                   }
+      ChangeCarBattery(data);
     }, 1000); 
 
     return () => clearInterval(interval); 
   }
-  }, [route, currentPositionIndex]);
+  }, [travelRoute, currentPositionIndex]);
 
   useEffect(() => {
     const fetchStations = async () => {
@@ -106,7 +144,7 @@ const UserMap = () => {
               <li
                 key={car.carId}
                 className={`car-item ${selectedCar && selectedCar.carId === car.carId ? "active" : ""}`}
-                onClick={() => setSelectedCar(car)}
+                onClick={() => handleCarSelection(car)}
               >
                 {car.model} (ID: {car.carId})
               </li>
@@ -140,7 +178,7 @@ const UserMap = () => {
                 <p><strong>Charger Power:</strong> {station.chargerPower} kW</p>
                 <p><strong>Availability:</strong> {station.chargerAvailability}</p>
                 {station.chargerAvailability === "Available" && (
-                  <button onClick={() => handleReserve(station.id)}>
+                  <button onClick={() => handleReserve(station)}>
                     Reserve
                   </button>
                 )}
@@ -148,9 +186,10 @@ const UserMap = () => {
             </Popup>
           </Marker>
         ))}
-        {route.length > 0 && (<><Polyline positions={route} color="green" /><Marker
+        {travelRoute.length > 0 && (<><Polyline positions={travelRoute.slice(currentPositionIndex)} color="green" />
+        <Marker
             key={222}
-            position={route[currentPositionIndex]}
+            position={travelRoute[currentPositionIndex]}
             icon={carIcon}></Marker></>)}
       </MapContainer>
       <button

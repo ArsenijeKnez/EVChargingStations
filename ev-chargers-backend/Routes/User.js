@@ -134,6 +134,32 @@ router.put('/changePassword', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+  router.put('/changeBattery', async (req, res) => {
+    try {
+      const {CarId: carId, BatteryPercentage: batteryPercentage} = req.body;
+  
+      if ( !carId || !batteryPercentage) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+
+      const car = await Car.findOne({ carId });
+
+      if (!car) {
+        return res.status(400).json({ message: 'Car not found' });
+      }
+      
+      car.batteryPercentage = batteryPercentage;
+      await car.save();
+
+      res.status(200).json({
+        message: 'Car battery updated successfully'
+      });
+    } catch (err) {
+      console.error('Error updating car:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
   
 
 module.exports = router;

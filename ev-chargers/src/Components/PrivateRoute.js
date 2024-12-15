@@ -13,15 +13,18 @@ export default function PrivateRoute({ children, allowedRoles }) {
     }
     else {
         const role = decodedToken.user_role;
+        var u = getUserFromLocalStorage();
+
+        if(allowedRoles[0] === "Guest")
+            return <Navigate to='/home/profile' />
+
+        if(role === "User" && u.blocked === true)
+            return <Navigate to='/unauthorized' />
+
         if (!allowedRoles.includes(role)) {
             return <Navigate to='/unauthorized' />
         }
 
-        var u = getUserFromLocalStorage();
-        if(decodedToken.user_role === "User" && u.isBlocked())
-            return <Navigate to='/unauthorized' />
-
         return children;
-    
     }
 };
