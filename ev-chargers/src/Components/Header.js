@@ -16,6 +16,7 @@ function Header() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('encodedtoken');
+        localStorage.removeItem('chargingTrack');
         setUserRole('');
         nav('/login');
     }

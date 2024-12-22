@@ -1,31 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
-import { GetCars, ChangeCarBattery } from "../../Services/UserService";
+import { GetCars, ChangeCarBattery, GetReservations } from "../../Services/UserService";
 import { getRoute } from "../../Services/RouteApi";
 import {getUserFromLocalStorage} from "../../Model/User";
+import {getChargingTrackFromLocalStorage, ChargingTrack, updateChargingTrackInLocalStorage} from "../../Model/ChargingTrack";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import icon from "../../Images/EVStation.png";
-import location from "../../Images/Location.png";
-import car from "../../Images/Car.png";
+import { stationIcon,carIcon, repairingStationIcon, reservedStationIcon } from "../Assets/MapIcons";
 import positions from "../../Model/CarTrack"
 import {GetStations} from "../../Services/StationService"
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "../../Styles/ALL.css";
-
-const carIcon = L.icon({
-  iconUrl: car,
-  iconSize: [32, 15],
-  iconAnchor: [6, 12],
-});
-
-const customIcon = L.icon({
-  iconUrl: icon,
-  iconSize: [30, 30],
-  iconAnchor: [15, 30],
-  popupAnchor: [0, -30],
-});
+import DateSelector from "./UserMapComponents/DateSelection";
+import MapControls from "./UserMapComponents/MapControls";
 
 
 const UserMap = () => {
@@ -36,6 +23,10 @@ const UserMap = () => {
   const [travelRoute, setTravelRoute] = useState([]);  
   const [currentPositionIndex, setCurrentPositionIndex] = useState(0); 
   const [reservedStation, setStation] = useState(0);
+  const [loadedTrack, setLoadedTrack] = useState(false);
+  const [parked, setParked] = useState(false);
+  const [reservationDateTime, setReservationDateTime] = useState([]);  
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleReserve = async (station) => {
     if(!currentPositionIndex || !travelRoute){
@@ -50,87 +41,114 @@ const UserMap = () => {
     const routs = await getRoute([travelRoute[currentPositionIndex][1],travelRoute[currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
     if(routs)
     {
+      const expense = (selectedCar.averageConsumption / selectedCar.batteryCapacity) * 100;
+      if(routs.length >= selectedCar.batteryPercentage/expense){
+        toast.warning("Station is too far to reach in time");
+        return;
+      }
+
+      const track = new ChargingTrack(station.stationId, routs, true, 0, selectedCar.carId);
+      localStorage.setItem('chargingTrack', JSON.stringify(track));
       setTravelRoute(routs);
-    }
-    setStation(station);
-  };
-  
-  const handleDestinationReach = ()=> {
-    if(!reservedStation){
       setCurrentPositionIndex(0);
-      return;
+      setStation(station);
     }
-    
-  }
+  };
 
   const handleLocationClick = async () =>{
     if(selectedCar){
-      //const start = [19.822353, 45.240025];
-      //const end = [19.851402, 45.245271];
-      //const routeCoordinates = await getRoute(start, end);
       if(travelRoute.length > 0){
-        setTravelRoute([]);
+        if(!reservedStation)
+          setTravelRoute([]);
+        else
+          toast.info("Location must be on while charging/traveling.");
       }
       else{
         setTravelRoute(positions);
-        //setCurrentPositionIndex(0);
       }
-      //console.log(routeCoordinates);
     }
     else{
       toast.info("Please select a car first.");
     }
   };
 
-  const handleCarSelection =()=> {
-    setSelectedCar(car);
+  const handleCarSelection =(car)=> {
+    if(!reservedStation)
+      setSelectedCar(car);
+    else
+      toast.warning("Can't switch cars while charging");
   }
 
   useEffect(() => {
-    if(travelRoute.length > 0 && selectedCar && selectedCar.batteryPercentage != 0){
-    if (currentPositionIndex >= travelRoute.length - 1) {
-      handleDestinationReach();
-    }
-    const interval = setInterval(() => {
-      setCurrentPositionIndex((prevIndex) => prevIndex + 1);
-      selectedCar.batteryPercentage -= 1;
-      const data = {CarId: selectedCar.carId,
-                    BatteryPercentage: selectedCar.batteryPercentage
-                   }
-      ChangeCarBattery(data);
-    }, 1000); 
-
-    return () => clearInterval(interval); 
-  }
-  }, [travelRoute, currentPositionIndex]);
-
-  useEffect(() => {
-    const fetchStations = async () => {
+    const initializeData = async () => {
       try {
         const stationsResponse = await GetStations();
         setStations(stationsResponse.data);
         if (stationsResponse.data.length === 0) {
           toast.info("No stations are visible at this time");
         }
+  
+        const user = getUserFromLocalStorage();
+        setUserId(user.id);
+        const carsResponse = await GetCars(user.id);
+        setCars(carsResponse.data.cars);
+  
+        if (!loadedTrack) {
+          const storedTrack = getChargingTrackFromLocalStorage();
+          if (!storedTrack) {
+            setLoadedTrack(true);
+            return;
+          }
+  
+          const foundCar = carsResponse.data.cars.find(
+            (car) => car.carId === storedTrack.carId
+          );
+          setSelectedCar(foundCar);
+          setTravelRoute(storedTrack.track);
+          setStation(storedTrack.stationId);
+          setCurrentPositionIndex(storedTrack.positionIndex);
+          setLoadedTrack(true);
+        }
       } catch (err) {
-        console.error("Error fetching stations:", err);
+        console.error("Error during initialization:", err);
       }
     };
+  
+    initializeData();
+  }, [loadedTrack]);
+  
 
-    const fetchCars = async () => {
-      const user = getUserFromLocalStorage();
-      setUserId(user.id);
-      try {
-        const response = await GetCars(user.id);
-        setCars(response.data.cars);
-      } catch (error) {
-        console.error("Error fetching cars:", error);
+  
+  useEffect(() => {
+    const handleDestinationReach = ()=> {
+      if(!reservedStation){
+        setCurrentPositionIndex(0);
+        return;
       }
-    };
+      
+    }
 
-    fetchStations();
-    fetchCars();
-  }, []);
+    if(travelRoute.length > 0 && selectedCar && selectedCar.batteryPercentage !== 0){
+    if (currentPositionIndex >= travelRoute.length - 1) {
+      handleDestinationReach();
+    }
+    const interval = setInterval(() => {      
+      if(!parked){
+        setCurrentPositionIndex((prevIndex) => prevIndex + 1);
+        const expense = (selectedCar.averageConsumption / selectedCar.batteryCapacity) * 100;
+        selectedCar.batteryPercentage -= expense;
+        const data = {CarId: selectedCar.carId,
+                      BatteryPercentage: selectedCar.batteryPercentage
+                     }
+        ChangeCarBattery(data);
+        updateChargingTrackInLocalStorage('positionIndex', currentPositionIndex);
+      }
+    }, 1000); 
+
+    return () => clearInterval(interval); 
+  }
+  }, [travelRoute, currentPositionIndex, selectedCar, reservedStation, parked]);
+
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -154,7 +172,12 @@ const UserMap = () => {
         {selectedCar && (
           <div>
             <h4>Selected Car</h4>
-            <p>Battery: {selectedCar.batteryPercentage}%</p>
+            <p>Battery: {selectedCar?.batteryPercentage?.toFixed(2)}%</p>
+          </div>
+        )}
+        {selectedCar && (travelRoute.length > 0) && (
+          <div>
+            <button onClick={() => setParked(!parked)}>{parked? "Resume Travel" : "Park Car"}</button>
           </div>
         )}
 
@@ -165,56 +188,59 @@ const UserMap = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {stations.map((station) => (
-          <Marker
-            key={station.id}
-            position={[station.coordinates.lat, station.coordinates.lng]}
-            icon={customIcon}
-          >
-            <Popup>
-              <div>
-                <h3>{station.name}</h3>
-                <p><strong>Charger Type:</strong> {station.chargerType}</p>
-                <p><strong>Charger Power:</strong> {station.chargerPower} kW</p>
-                <p><strong>Availability:</strong> {station.chargerAvailability}</p>
-                {station.chargerAvailability === "Available" && (
-                  <button onClick={() => handleReserve(station)}>
-                    Reserve
-                  </button>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-        {travelRoute.length > 0 && (<><Polyline positions={travelRoute.slice(currentPositionIndex)} color="green" />
+        {stations.map((station) => {
+
+  const getStationIcon = (availability) => {
+    switch (availability) {
+      case "Available":
+        return stationIcon;
+      case "Occupied":
+        return reservedStationIcon;
+      case "Faulted":
+        return repairingStationIcon;
+      default:
+        return stationIcon
+    }
+  };
+
+  return (
+    <Marker
+      key={station.id}
+      position={[station.coordinates.lat, station.coordinates.lng]}
+      icon={getStationIcon(station.chargerAvailability)}
+    >
+      <Popup>
+        <div>
+          <h3>{station.name}</h3>
+          <p><strong>Charger Type:</strong> {station.chargerType}</p>
+          <p><strong>Charger Power:</strong> {station.chargerPower} kW</p>
+          <p><strong>Availability:</strong> {station.chargerAvailability}</p>
+          {station.chargerAvailability === "Available" && (
+            <button onClick={() => handleReserve(station)}>
+              Reserve
+            </button>
+          )}
+        </div>
+      </Popup>
+    </Marker>
+  );
+})}
+        {travelRoute.length > 0 && reservedStation && (<><Polyline positions={travelRoute.slice(currentPositionIndex)} color="green" />
         <Marker
             key={222}
             position={travelRoute[currentPositionIndex]}
             icon={carIcon}></Marker></>)}
       </MapContainer>
-      <button
-  style={{
-    position: "absolute",
-    zIndex: 1000,
-    top: "60px",
-    right: "20px",
-    backgroundColor: "transparent",
-    border: "none",
-    cursor: "pointer",
-  }}
-  onClick={handleLocationClick}
->
-  <img
-    src={location}
-    alt="Location Icon"
-    style={{
-      width: "58px",
-      height: "41px",  
-    }}
-  />
-</button>
+      <MapControls
+          handleLocationClick={handleLocationClick}
+          toggleModal={() => setIsModalOpen(!isModalOpen)}
+        />
 
-
+<DateSelector 
+  isModalOpen={isModalOpen}
+  setIsModalOpen={setIsModalOpen}
+  setReservationDateTime={setReservationDateTime}
+/>
       </div>
     </div>
   );

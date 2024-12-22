@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Navigate, Outlet, useLocation } from "react-router-dom";
-import { useState } from "react";
 import { getUserFromLocalStorage, User} from '../Model/User';
 
 export default function PrivateRoute({ children, allowedRoles }) {
@@ -25,6 +24,7 @@ export default function PrivateRoute({ children, allowedRoles }) {
             return <Navigate to='/unauthorized' />
         }
 
-        return children;
+        return children
+
     }
 };

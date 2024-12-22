@@ -1,7 +1,6 @@
 import { GetCars, AddCar } from "../../Services/UserService";
 import {getUserFromLocalStorage} from "../../Model/User";
 import { useState ,  useEffect} from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Form, Button } from 'react-bootstrap';
@@ -10,22 +9,22 @@ import ListVehicles from './ListVehicles';
  
 function AddVehicle() {
     const [errorMessages, setErrorMessages] = useState({});
-    const nav = useNavigate();
     const [cars, setCars] = useState([]);
     const [userId, setUserId] = useState("");
 
+    const fetchCars = async () => {
+        const user = getUserFromLocalStorage();
+        setUserId(user.id);
+        try {
+          const response = await GetCars(user.id);
+
+          setCars(response.data.cars);
+        } catch (error) {
+          console.error('Error fetching cars:', error);
+        }
+      };
+
     useEffect(() => {
-        const fetchCars = async () => {
-            const user = getUserFromLocalStorage();
-            setUserId(user.id);
-            try {
-              const response = await GetCars(user.id);
- 
-              setCars(response.data.cars);
-            } catch (error) {
-              console.error('Error fetching cars:', error);
-            }
-          };
     
         fetchCars();
     }, []);
@@ -71,7 +70,7 @@ function AddVehicle() {
         const r = await AddCar(data);
         if(r.status === 200 || r.status === 201){
             toast.success('successfuly added vehicle!');
-            nav('/home/profile');
+            fetchCars();
         }
         else {
             toast.error('failed vehicle registration!');
@@ -103,7 +102,7 @@ function AddVehicle() {
     }
     return (
         <>
-        <ListVehicles cars = {cars}/>
+        <ListVehicles cars = {cars} fetchCars = {fetchCars}/>
                 <div className="container mt-5 ">
                     <h3>Add New Vehicle</h3>
         <div className="row justify-content-center">

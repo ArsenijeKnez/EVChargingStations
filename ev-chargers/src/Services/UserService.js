@@ -115,6 +115,15 @@ export const AddCar = async (data) => {
   }
 };
 
+export const RemoveCar = async (data) => {
+  try {
+    const response = await axios.delete(`${process.env.REACT_APP_API_URL}/user/removeCar`, {data,});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
 export const GetCars = async (data) => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getCars`, {params: {
@@ -145,3 +154,13 @@ export const ChangeUserPassword = async (data) => {
   }
 };
 
+export const GetReservations = async (start, end) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/getReservations/SelectedPeriod`, {params: {
+      Start: start, End: end, 
+    },});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};

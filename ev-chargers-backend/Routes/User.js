@@ -112,6 +112,31 @@ router.put('/changePassword', async (req, res) => {
     }
   });
 
+  router.delete('/removeCar', async (req, res) => {
+    try {
+      const { CarId: carId} = req.body;
+  
+      if ( !carId) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+  
+      const car = await Car.findOne({ carId });
+
+      if (!car) {
+        return res.status(400).json({ message: 'Car not found' });
+      }
+      
+      await Car.deleteOne({ carId });
+
+      res.status(200).json({
+        message: 'Car removed successfully',
+      });
+    } catch (err) {
+      console.error('Error removing car:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
   router.get('/getCars', async (req, res) => {
     try {
       

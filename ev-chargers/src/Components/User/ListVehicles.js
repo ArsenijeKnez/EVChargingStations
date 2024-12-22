@@ -1,6 +1,25 @@
 import React from 'react';
+import { RemoveCar} from "../../Services/UserService";
+import { toast } from 'react-toastify';
 
-const ListVehicles = ({ cars }) => {
+const ListVehicles = ({ cars, fetchCars }) => {
+
+  const onRemoveVehicle = async(id)=>{
+    try {
+        const response = await RemoveCar({CarId: id});
+        if(response.status === 200){
+          toast.success(response.data.message);
+          fetchCars();
+        }
+        else{
+          toast.error(response.error);
+        }
+    } 
+    catch (error) {
+        console.error('Error removin car:', error);
+    }
+  };
+
   return (
     <div className="table-viewer">
       <h2>User Vehicles</h2>
@@ -17,6 +36,7 @@ const ListVehicles = ({ cars }) => {
               <th>Battery Percentage</th>
               <th>Year of Production</th>
               <th>Average Consumption</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -26,9 +46,15 @@ const ListVehicles = ({ cars }) => {
                 <td>{car.model}</td>
                 <td>{car.chargerType}</td>
                 <td>{car.batteryCapacity}</td>
-                <td>{car.batteryPercentage}%</td>
+                <td>{car.batteryPercentage.toFixed(2)}%</td>
+
                 <td>{new Date(car.yearOfProduction).toLocaleDateString()}</td>
                 <td>{car.averageConsumption} kWh/100km</td>
+                <td>
+                  <button onClick={() => onRemoveVehicle(car.carId)}>
+                    Remove Vehicle
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
