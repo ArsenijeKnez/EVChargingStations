@@ -1,19 +1,19 @@
 
 export class ChargingTrack {
-    constructor(stationId, track, isCharging, positionIndex, carId) {
-        this.stationId = stationId;
-        this.track = track;
-        this.isCharging = isCharging;
-        this.positionIndex = positionIndex;
+    constructor(reservedStation, travelRoute, isParked, currentPositionIndex, carId) {
+        this.reservedStation = reservedStation;
+        this.travelRoute = travelRoute;
+        this.isParked = isParked;
+        this.currentPositionIndex = currentPositionIndex;
         this.carId = carId;
     }
 
     static fromObject(obj) {
         return new ChargingTrack(
-            obj.stationId,
-            obj.track,
-            obj.isCharging,
-            obj.positionIndex,
+            obj.reservedStation,
+            obj.travelRoute,
+            obj.isParked,
+            obj.currentPositionIndex,
             obj.carId,
         );
     }

@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 //import jwt from 'jsonwebtoken';
 import {jwtDecode} from "jwt-decode";
-import {User} from "../Model/User";
 
 function decodeToken(token) {
   try {
@@ -156,9 +155,18 @@ export const ChangeUserPassword = async (data) => {
 
 export const GetReservations = async (start, end) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/getReservations/SelectedPeriod`, {params: {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/reservation/getReservations/SelectedPeriod`, {params: {
       Start: start, End: end, 
     },});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const Reserve = async (data) => {
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/reservation/reserveStation`, data);
     return response;
   } catch (error) {
     return handleApiError(error);

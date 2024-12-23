@@ -3,26 +3,41 @@ const Reservation = require('../Schemas/Reservation');
 const router = express.Router()
 
 router.post('/reserveStation', async (req, res) => {
-    const { Email: email , CarID: carId, StationID: stationId, Start: start, End: end, TimeOfReservation: timeOfReservation } = req.body;
+    let { Email: userEmail , CarID: carId, StationID: stationId, Start: start, End: end } = req.body;
   
-    if ( !email || !carId || !stationId || !start || !end || !timeOfReservation) {
-      return res.status(400).send('All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
+    if ( !userEmail || !carId || !stationId ) {
+      return res.status(400).send({ message: 'All fields are required'});
+    }
+
+    if(!start || !end){
+      start = Date.now();
+      end = Date.now() + 30 * 1000; //TO CHANGE?
     }
   
     try {
+
+      const previousReservation = await Reservation.findOne({userEmail});
+      if(previousReservation){
+        return res.status(400).send({ message: 'User cannot have two reservations'});
+      }
+
+      const existing = await Reservation.findOne({stationId});
+      if(existing && !(existing.start > end || existing.end < start)){
+        return res.status(400).send({ message: 'Station is already reserved for that time'});
+      }
+  
       const newReservation = new Reservation({ 
-        email, 
+        userEmail, 
         carId, 
         stationId, 
         start, 
         end, 
-        timeOfReservation 
       });
       await newReservation.save();
-      res.status(201).json(newReservation);
+      res.status(201).json({reservation: newReservation});
     } catch (err) {
-      console.error('Error saving station:', err);
-      res.status(500).send('Error saving station');
+      console.error('Error saving reservation:', err);
+      res.status(500).send({ message: 'Error saving reservation' });
     }
   });
 
@@ -30,17 +45,17 @@ router.post('/reserveStation', async (req, res) => {
     const {Start: start, End: end } = req.query;
   
     if (!start || !end) {
-      return res.status(400).send('All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
+      return res.status(400).send({ message: 'All fields are required'});
     }
     try {
       const reservations = await Reservation.find({
           start: { $gte: new Date(start) },
           end: { $lte: new Date(end) }
       });
-      res.status(200).json(reservations);
+      res.status(200).json({reservations: reservations});
     } catch (err) {
       console.error('Error saving station:', err);
-      res.status(500).send('Error saving station');
+      res.status(500).send({ message: 'Error saving station'});
     }
   });
 
