@@ -164,6 +164,17 @@ export const GetReservations = async (start, end) => {
   }
 };
 
+export const GetReservation = async (data) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/reservation/getReservations/SelectedUser`, {params: {
+      Email: data, 
+    },});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
 export const Reserve = async (data) => {
   try {
     const response = await axios.post(`${process.env.REACT_APP_API_URL}/reservation/reserveStation`, data);

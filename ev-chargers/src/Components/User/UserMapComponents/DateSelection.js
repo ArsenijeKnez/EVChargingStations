@@ -1,37 +1,48 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 const DateSelector = ({
-    isModalOpen,
-    setIsModalOpen,
-    setReservationDateTime
-  }) => {
+  isModalOpen,
+  setIsModalOpen,
+  setReservationDateTime,
+}) => {
   const [selectedTimeStart, setSelectedTimeStart] = useState("");
   const [selectedTimeEnd, setSelectedTimeEnd] = useState("");
   const [selectedDateStart, setSelectedDateStart] = useState("");
   const [selectedDateEnd, setSelectedDateEnd] = useState("");
-
+  const [errorMessage, setErrorMessage] = useState("");
 
   const closeModal = () => setIsModalOpen(false);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const startDateTime = `${selectedDateStart} ${selectedTimeStart}`;
-    const endDateTime = `${selectedDateEnd} ${selectedTimeEnd}`;
+    const startDateTime = new Date(`${selectedDateStart}T${selectedTimeStart}`);
+    const endDateTime = new Date(`${selectedDateEnd}T${selectedTimeEnd}`);
 
-    setReservationDateTime([startDateTime, endDateTime]);
+    if (!selectedDateStart || !selectedTimeStart || !selectedDateEnd || !selectedTimeEnd) {
+      setErrorMessage("All fields are required.");
+      return;
+    }
+
+    if (startDateTime >= endDateTime) {
+      setErrorMessage("Start date and time must be before end date and time.");
+      return;
+    }
+    setErrorMessage("");
+
+    setReservationDateTime([startDateTime.toISOString(), endDateTime.toISOString()]);
     closeModal();
   };
-  
 
   return (
     <div>
-
       {isModalOpen && (
         <div style={styles.overlay}>
           <div style={styles.modal}>
-            <h2>Time of reservation</h2>
+            <h2>Time of Reservation</h2>
+            {errorMessage && <p style={styles.error}>{errorMessage}</p>}
             <form onSubmit={handleSubmit}>
               <div style={styles.inputGroup}>
-                <label htmlFor="date">Select Start Date:</label><br/>
+                <label htmlFor="datestart">Select Start Date:</label><br />
                 <input
                   type="date"
                   id="datestart"
@@ -39,7 +50,7 @@ const DateSelector = ({
                   onChange={(e) => setSelectedDateStart(e.target.value)}
                   required
                 />
-                <label htmlFor="time">Select Start Time:</label><br/>
+                <label htmlFor="timestart">Select Start Time:</label><br />
                 <input
                   type="time"
                   id="timestart"
@@ -49,7 +60,7 @@ const DateSelector = ({
                 />
               </div>
               <div style={styles.inputGroup}>
-                <label htmlFor="date">Select End Date:</label><br/>
+                <label htmlFor="dateend">Select End Date:</label><br />
                 <input
                   type="date"
                   id="dateend"
@@ -57,7 +68,7 @@ const DateSelector = ({
                   onChange={(e) => setSelectedDateEnd(e.target.value)}
                   required
                 />
-                <label htmlFor="time">Select End Time:</label><br/>
+                <label htmlFor="timeend">Select End Time:</label><br />
                 <input
                   type="time"
                   id="timeend"
@@ -67,8 +78,12 @@ const DateSelector = ({
                 />
               </div>
               <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.submitButton}>Submit</button>
-                <button type="button" onClick={closeModal} style={styles.cancelButton}>
+                <button type="submit" style={styles.submitButton}>Apply</button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={styles.cancelButton}
+                >
                   Cancel
                 </button>
               </div>
@@ -118,6 +133,10 @@ const styles = {
     padding: "10px 15px",
     border: "none",
     borderRadius: "4px",
+  },
+  error: {
+    color: "red",
+    marginBottom: "10px",
   },
 };
 

@@ -1,7 +1,6 @@
 
 export class ChargingTrack {
-    constructor(reservedStation, travelRoute, isParked, currentPositionIndex, carId) {
-        this.reservedStation = reservedStation;
+    constructor(travelRoute, isParked, currentPositionIndex, carId) {
         this.travelRoute = travelRoute;
         this.isParked = isParked;
         this.currentPositionIndex = currentPositionIndex;
@@ -10,7 +9,6 @@ export class ChargingTrack {
 
     static fromObject(obj) {
         return new ChargingTrack(
-            obj.reservedStation,
             obj.travelRoute,
             obj.isParked,
             obj.currentPositionIndex,

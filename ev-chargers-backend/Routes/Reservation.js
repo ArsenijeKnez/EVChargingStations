@@ -13,6 +13,15 @@ router.post('/reserveStation', async (req, res) => {
       start = Date.now();
       end = Date.now() + 30 * 1000; //TO CHANGE?
     }
+
+    start = new Date(start);
+    end = new Date(end);
+  
+    const maxDuration = 12 * 60 * 60 * 1000;
+    if (end - start > maxDuration) {
+      return res.status(400).send({ message: 'Reservation period cannot exceed 12 hours' });
+    }
+  
   
     try {
 
@@ -53,6 +62,21 @@ router.post('/reserveStation', async (req, res) => {
           end: { $lte: new Date(end) }
       });
       res.status(200).json({reservations: reservations});
+    } catch (err) {
+      console.error('Error saving station:', err);
+      res.status(500).send({ message: 'Error saving station'});
+    }
+  });
+
+  router.get('/getReservations/SelectedUser', async (req, res) => {
+    const {Email: userEmail } = req.query;
+  
+    if (!userEmail) {
+      return res.status(400).send({ message: 'User email is required'});
+    }
+    try {
+      const reservation = await Reservation.find({userEmail});
+      res.status(200).json({reservation: reservation});
     } catch (err) {
       console.error('Error saving station:', err);
       res.status(500).send({ message: 'Error saving station'});
