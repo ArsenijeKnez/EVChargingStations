@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
-import { GetCars, ChangeCarBattery, Reserve, GetReservation, GetReservations} from "../../Services/UserService";
+import { GetCars, ChangeCarBattery, Reserve, GetReservation, GetReservations, EndReservation, ActivateReservation} from "../../Services/UserService";
 import { getRoute } from "../../Services/RouteApi";
 import {getUserFromLocalStorage} from "../../Model/User";
 import {getChargingTrackFromLocalStorage, ChargingTrack, updateChargingTrackInLocalStorage} from "../../Model/ChargingTrack";
 import "leaflet/dist/leaflet.css";
-import { stationIcon,carIcon, repairingStationIcon, reservedStationIcon } from "../Assets/MapIcons";
+import { stationIcon,carIcon, repairingStationIcon, reservedStationIcon, userStationIcon } from "../Assets/MapIcons";
 import positions from "../../Model/CarTrack"
 import {GetStations} from "../../Services/StationService"
 import { toast } from 'react-toastify';
@@ -24,13 +24,14 @@ const UserMap = () => {
   const [reservations, setReservations] = useState([]);
   const [reservationDateTime, setReservationDateTime] = useState([]);  
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCharging, setIsCharging] = useState(false);
 
   const postReserve = async (station) => {
     const user = getUserFromLocalStorage();
     const response = await Reserve({Email: user.email, CarID: selectedCar.carId, StationID: station.stationId, Start: reservationDateTime[0], End: reservationDateTime[1]});
 
     if (response.status === 201) {
-      const data = await response.data.reservation;
+      const data = await response.data;
       setReservation(data);
       toast.success('Reserved station');
       return true;
@@ -39,7 +40,24 @@ const UserMap = () => {
       toast.error(errorMessage);
       return false;
     }
-  }
+  };
+
+  const handleTravelTo = async (station) => {
+    if(!locationOn){
+      toast.info("Location must be turned to reserve station");
+      return;
+    }
+    const routs = await getRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
+    if(!routs)
+    {
+      toast.error("Cannot find path to the station.");
+      return;
+    }
+    const track = new ChargingTrack(routs, false, 0, selectedCar.carId);
+    localStorage.setItem('chargingTrack', JSON.stringify(track));
+    setChargingTrack(track);                                
+
+  };
 
   const handleReserve = async (station) => {
     if(reservation){
@@ -75,6 +93,10 @@ const UserMap = () => {
     else{
       postReserve(station);
     }
+    const response = GetReservations(reservationDateTime[0], reservationDateTime[1]);
+    if(response.status === 200){
+      setReservations(response.data.reservations);
+    }
     
   };
 
@@ -94,6 +116,13 @@ const UserMap = () => {
       toast.warning("Can't switch cars while charging");
   }
 
+  const handleCancelReservation = async () =>{
+    const user = getUserFromLocalStorage();
+    EndReservation({Email: user.email});
+    setReservation(null);
+    setIsCharging(false);
+  }
+
   useEffect(() => {
     const initializeData = async () => {
       try {
@@ -107,23 +136,24 @@ const UserMap = () => {
         const carsResponse = await GetCars(user.id);
         setCars(carsResponse.data.cars);
 
-        const reservationResponse = await GetReservation(user.email);
-        if(reservationResponse.status === 200 && reservationResponse.data.reservation && reservationResponse.data.reservation.length !== 0){
-          setReservation(reservationResponse.data.reservation);
-        }
-
-          const storedTrack = getChargingTrackFromLocalStorage();
-          if (!storedTrack) {
-            return;
-          }
-          
+        const storedTrack = getChargingTrackFromLocalStorage();
+        if (storedTrack) {
           const foundCar = carsResponse.data.cars.find(
             (car) => car.carId === storedTrack.carId
           );
           setSelectedCar(foundCar);
           setChargingTrack(storedTrack);
+        }
+        
+        const reservationResponse = await GetReservation(user.email);
+        if(reservationResponse.status === 200 && reservationResponse.data.reservation && reservationResponse.data.reservation.length !== 0){
+          setReservation(reservationResponse.data.reservation);
+          const foundCar = carsResponse.data.cars.find(
+            (car) => car.carId === reservationResponse.data.reservation.carId
+          );
+          setSelectedCar(foundCar);
+        }
           
-
       } catch (err) {
         console.error("Error during initialization:", err);
       }
@@ -140,25 +170,48 @@ const UserMap = () => {
     }
     }
   }, [reservationDateTime]);
-  
   useEffect(() => {
-    if(chargingTrack.currentPositionIndex >= chargingTrack.travelRoute.length - 1){
-      if(reservation){
-        setChargingTrack(prevState => ({
+    const handleChargingTrackUpdate = async () => {
+      if (
+        chargingTrack.currentPositionIndex >= chargingTrack.travelRoute.length - 1 &&
+        !isCharging
+      ) {
+        if (reservation) {
+          const user = getUserFromLocalStorage();
+          try {
+            const result = await ActivateReservation({ Email: user.email });
+            if (result.status === 200) {
+              setIsCharging(true);
+            } else if (result.data?.message === "Reservation not found") {
+              setReservation(null);
+            }
+          } catch (error) {
+            console.error("Error activating reservation:", error);
+          }
+        } else {
+          setChargingTrack((prevState) => ({
+            ...prevState,
+            currentPositionIndex: 0,
+          }));
+          updateChargingTrackInLocalStorage("currentPositionIndex", 0);
+        }
+  
+        setChargingTrack((prevState) => ({
           ...prevState,
           isParked: true,
         }));
-        updateChargingTrackInLocalStorage('isParked', true);
+        updateChargingTrackInLocalStorage("isParked", true);
       }
-      else{
-        setChargingTrack(prevState => ({
-          ...prevState,
-          currentPositionIndex: 0,
-        }));
-        updateChargingTrackInLocalStorage('currentPositionIndex', 0);
-      }
-      }
-  }, [chargingTrack.isParked, chargingTrack.currentPositionIndex, reservation, chargingTrack.travelRoute.length]);
+    };
+  
+    handleChargingTrackUpdate();
+  }, [
+    chargingTrack.isParked,
+    isCharging,
+    chargingTrack.currentPositionIndex,
+    reservation,
+    chargingTrack.travelRoute.length,
+  ]);
   
   useEffect(() => {
   
@@ -190,7 +243,37 @@ const UserMap = () => {
   
       return () => clearInterval(interval);
     }
-  }, [chargingTrack.isParked, chargingTrack.currentPositionIndex,chargingTrack.travelRoute.length, selectedCar]); 
+  }, [chargingTrack.isParked, chargingTrack.currentPositionIndex,chargingTrack.travelRoute.length, selectedCar]);
+  
+  useEffect(() => {
+    
+    if (isCharging && reservation) {
+      if(selectedCar.batteryPercentage < 100){
+      const interval = setInterval(() => {
+          const foundStation = stations.find(
+            (station) => station.stationId === reservation.stationId
+          );
+          selectedCar.batteryPercentage = Math.min(100, selectedCar.batteryPercentage + foundStation.chargerPower/60);
+          
+          ChangeCarBattery({
+            CarId: selectedCar.carId,
+            BatteryPercentage: selectedCar.batteryPercentage,
+          });
+
+          
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+    else{
+      console.log("asdas");
+      const user = getUserFromLocalStorage();
+      EndReservation({Email: user.email});
+      setReservation(null);
+      setIsCharging(false);
+    }
+    }
+
+  }, [isCharging, selectedCar, reservation, stations]);
   
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -228,12 +311,27 @@ const UserMap = () => {
                   isParked: !chargingTrack.isParked,
                 }));
                 updateChargingTrackInLocalStorage("isParked", true);
+                if(isCharging)
+                {
+                  handleCancelReservation();
+                }
               }}
             >
               {chargingTrack.isParked ? "Resume Travel" : "Park Car"}
             </button>
           </div>
         )}
+        {reservation ? (
+  <div>
+    <h4>Reservation</h4>
+    <p>Start: {new Date(reservation.start).toLocaleString()}</p>
+    <p>End: {new Date(reservation.end).toLocaleString()}</p>
+    {!isCharging && <button onClick={handleCancelReservation}>Cancel Reservation</button>}
+  </div>
+) : (
+  <p>No active reservations.</p>
+)}
+
       </div>
       <div style={{ flex: 1 }}>
         <MapContainer
@@ -248,11 +346,14 @@ const UserMap = () => {
           {stations.map((station) => {
             
             const getStationIcon = (availability) => {
+              if(reservation?.stationId === station.stationId ){
+                return userStationIcon;
+              }
               const isReserved = reservations.some(
                 (reservation) => reservation.stationId === station.stationId
               );
               if (isReserved) {
-                return reservedStationIcon;     //TO DO icon for when the station is reserved by me
+                return userStationIcon; 
               }
               switch (availability) {
                 case "Available":
@@ -285,9 +386,14 @@ const UserMap = () => {
                       <strong>Availability:</strong>{" "}
                       {station.chargerAvailability}
                     </p>
-                    {station.chargerAvailability === "Available" && (
+                    {reservation?.stationId !== station.stationId && station.chargerAvailability === "Available" && (
                       <button onClick={() => handleReserve(station)}>
                         Reserve
+                      </button>
+                    )}
+                    {reservation?.stationId === station.stationId  && (
+                      <button onClick={() => handleTravelTo(station)}>
+                        Travel to
                       </button>
                     )}
                   </div>

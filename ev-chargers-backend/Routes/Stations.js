@@ -23,10 +23,10 @@ router.get('/', async (req, res) => {
   });
   
   router.post('/post', async (req, res) => {
-    const { name, chargerType, chargerPower, chargerAvailability, coordinates, currentUserInfo } = req.body;
-  
+    const { name, chargerType, chargerPower, chargerAvailability, coordinates } = req.body;
+
     if ( !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
-      return res.status(400).send('All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
+      return res.status(400).send({message: 'All fields (id, name, chargerType, chargerPower, chargerAvailability, coordinates) are required'});
     }
   
     try {
@@ -35,14 +35,13 @@ router.get('/', async (req, res) => {
         chargerType, 
         chargerPower, 
         chargerAvailability, 
-        coordinates, 
-        currentUserInfo 
+        coordinates,  
       });
       await newStation.save();
       res.status(201).json(newStation);
     } catch (err) {
       console.error('Error saving station:', err);
-      res.status(500).send('Error saving station');
+      res.status(500).send({message:'Error saving station'});
     }
   });
   

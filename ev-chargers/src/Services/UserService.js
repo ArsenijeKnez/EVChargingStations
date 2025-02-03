@@ -183,3 +183,21 @@ export const Reserve = async (data) => {
     return handleApiError(error);
   }
 };
+
+export const EndReservation = async (data) => {
+  try {
+    const response = await axios.delete(`${process.env.REACT_APP_API_URL}/reservation/endReservation`, {data,});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const ActivateReservation = async (data) => {
+  try {
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/reservation/activateReservation`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};

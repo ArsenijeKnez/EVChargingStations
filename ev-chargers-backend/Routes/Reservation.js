@@ -1,5 +1,6 @@
 const express = require('express');
 const Reservation = require('../Schemas/Reservation');
+const Station = require('../Schemas/Station');
 const router = express.Router()
 
 router.post('/reserveStation', async (req, res) => {
@@ -24,6 +25,10 @@ router.post('/reserveStation', async (req, res) => {
   
   
     try {
+      const station = await Station.findOne({stationId});
+      if(!station){
+        return res.status(400).send({ message: 'Station does not exist'});
+      }
 
       const previousReservation = await Reservation.findOne({userEmail});
       if(previousReservation){
@@ -34,7 +39,7 @@ router.post('/reserveStation', async (req, res) => {
       if(existing && !(existing.start > end || existing.end < start)){
         return res.status(400).send({ message: 'Station is already reserved for that time'});
       }
-  
+      
       const newReservation = new Reservation({ 
         userEmail, 
         carId, 
@@ -43,7 +48,11 @@ router.post('/reserveStation', async (req, res) => {
         end, 
       });
       await newReservation.save();
-      res.status(201).json({reservation: newReservation});
+
+      res.status(201).json({
+        reservation: newReservation,
+        stationChargerPower: station.chargerPower, 
+      });
     } catch (err) {
       console.error('Error saving reservation:', err);
       res.status(500).send({ message: 'Error saving reservation' });
@@ -75,7 +84,7 @@ router.post('/reserveStation', async (req, res) => {
       return res.status(400).send({ message: 'User email is required'});
     }
     try {
-      const reservation = await Reservation.find({userEmail});
+      const reservation = await Reservation.findOne({userEmail});
       res.status(200).json({reservation: reservation});
     } catch (err) {
       console.error('Error saving station:', err);
@@ -83,4 +92,82 @@ router.post('/reserveStation', async (req, res) => {
     }
   });
 
+  router.put('/activateReservation', async (req, res) => {
+    const { Email: userEmail } = req.body;
+
+    if (!userEmail) {
+      return res.status(400).send({ message: 'User email is required' });
+    }
+  
+    try {
+      const reservation = await Reservation.findOne({ userEmail });
+  
+      if (!reservation) {
+        return res.status(404).send({ message: 'Reservation not found' });
+      }
+  
+      const stationId = reservation.stationId;
+  
+      const station = await Station.findOne({ stationId });
+  
+      if (!station) {
+        return res.status(404).send({ message: 'Station not found' });
+      }
+      station.currentUserInfo = userEmail;
+      station.chargerAvailability = "Occupied";
+      await station.save();
+
+      res.status(200).send({ message: 'Reservation activated' });
+    } catch (err) {
+      console.error('Error activating reservation:', err);
+      res.status(500).send({ message: 'Error activating reservation' });
+    }
+  });
+  
+
+  router.delete('/endReservation', async (req, res) => {
+    const { Email: userEmail } = req.body;
+
+    if (!userEmail) {
+      return res.status(400).send({ message: 'User email is required' });
+    }
+    try {
+      const reservation = await Reservation.findOne({ userEmail });
+  
+      if (!reservation) {
+        return res.status(404).send({ message: 'Reservation not found' });
+      }
+  
+      const stationId = reservation.stationId;
+      const station = await Station.findOne({ stationId });
+  
+      if (!station) {
+        return res.status(404).send({ message: 'Station not found' });
+      }
+      if(station.currentUserInfo === userEmail){
+        const updatedStation = await Station.findOneAndUpdate(
+          { stationId },
+          {
+            $unset: { currentUserInfo: '' }, 
+            $set: { chargerAvailability: "Available" },
+          },
+          { new: true }
+        );
+
+        if (!updatedStation) {
+          return res.status(500).send({ message: 'Failed to update station' });
+        }  
+      }
+  
+      await Reservation.deleteOne({ userEmail });
+  
+      res.status(200).json({
+        message: 'Reservation ended successfully',
+      });
+    } catch (err) {
+      console.error('Error ending and deleting reservation:', err);
+      res.status(500).send({ message: 'Error ending and deleting reservation' });
+    }
+  });
+  
 module.exports = router;
