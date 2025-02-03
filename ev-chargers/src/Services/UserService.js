@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 //import jwt from 'jsonwebtoken';
 import {jwtDecode} from "jwt-decode";
-import {User} from "../Model/User";
 
 function decodeToken(token) {
   try {
@@ -82,11 +81,10 @@ export const LoginUser = async (data) => {
 };
 
 
-
-export const GetUserData = async (username) => {
+export const GetUserData = async (email) => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUserData`, {
-      params: { username },
+      params: { email },
     });
     return response;
   } catch (error) {
@@ -106,14 +104,30 @@ export const EditProfile = async (data) => {
   }
 };
 
-export const GetUsers = async () => {
+
+export const AddCar = async (data) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getUsers`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': JSON.parse(localStorage.getItem('encodedToken')),
-      },
-    });
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/addCar`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const RemoveCar = async (data) => {
+  try {
+    const response = await axios.delete(`${process.env.REACT_APP_API_URL}/user/removeCar`, {data,});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const GetCars = async (data) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/user/getCars`, {params: {
+      Id: data, 
+    },});
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -121,23 +135,67 @@ export const GetUsers = async () => {
 };
 
 
-export const VerifyUser= async (username, v) => {
+export const ChangeCarBattery = async(data) =>{
   try {
-    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/verify/${username}/${v}`, [], {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':  JSON.parse(localStorage.getItem('encodedToken')),
-      },
-    });
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/changeBattery`, data);
     return response;
   } catch (error) {
     return handleApiError(error);
   }
-};
+}
 
 export const ChangeUserPassword = async (data) => {
   try {
     const response = await axios.put(`${process.env.REACT_APP_API_URL}/user/changePassword`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const GetReservations = async (start, end) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/reservation/getReservations/SelectedPeriod`, {params: {
+      Start: start, End: end, 
+    },});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const GetReservation = async (data) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/reservation/getReservations/SelectedUser`, {params: {
+      Email: data, 
+    },});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const Reserve = async (data) => {
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/reservation/reserveStation`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const EndReservation = async (data) => {
+  try {
+    const response = await axios.delete(`${process.env.REACT_APP_API_URL}/reservation/endReservation`, {data,});
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const ActivateReservation = async (data) => {
+  try {
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/reservation/activateReservation`, data);
     return response;
   } catch (error) {
     return handleApiError(error);

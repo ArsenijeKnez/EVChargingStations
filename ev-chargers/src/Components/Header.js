@@ -16,6 +16,7 @@ function Header() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('encodedtoken');
+        localStorage.removeItem('chargingTrack');
         setUserRole('');
         nav('/login');
     }
@@ -37,8 +38,8 @@ function Header() {
                 {userRole === 'Admin' && (
                     <Nav.Item>
 
-                        <Link to='/home/admin/addChargers' className={` nav-link  ${location.pathname === '/home/admin/addChargers' ? 'active link-light ' : 'link-light hoverLink '}`}>
-                            Pannel
+                        <Link to='/home/admin/EventLogs' className={` nav-link  ${location.pathname === '/home/admin/EventLogs' ? 'active link-light ' : 'link-light hoverLink '}`}>
+                            Event Logs
                         </Link>
                     </Nav.Item>
 
@@ -48,6 +49,15 @@ function Header() {
 
                         <Link to='/home/admin/blockUser' className={`nav-link  ${location.pathname === '/home/admin/blockUser' ? 'active link-light' : 'link-light hoverLink '}`}>
                             Block Users
+                        </Link>
+                    </Nav.Item>
+
+                )}
+                {userRole === 'Admin' && (
+                    <Nav.Item>
+
+                        <Link to='/home/admin/stations' className={`nav-link  ${location.pathname === '/home/admin/stations' ? 'active link-light' : 'link-light hoverLink '}`}>
+                            Stations
                         </Link>
                     </Nav.Item>
 
@@ -70,7 +80,7 @@ function Header() {
 
                 )}
                 {userRole && (
-                    <Nav.Item className={`${userRole === 'User' ? '' : 'ms-auto'}`}>
+                    <Nav.Item>
                         <Link to='/home/profile' className={`nav-link  ${location.pathname === '/home/profile' ? 'active link-light' : 'link-light hoverLink '}`}>
                             Edit Profile
                         </Link>

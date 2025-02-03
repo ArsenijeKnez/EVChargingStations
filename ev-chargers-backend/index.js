@@ -6,6 +6,8 @@ const cors = require('cors');
 const authRoutes = require('./Routes/Authentification');
 const userRoutes = require('./Routes/User');
 const stationRoutes = require('./Routes/Stations');
+const reservationRoutes = require('./Routes/Reservation');
+const adminRoutes = require('./Routes/Admin');
 
 const app = express();
 const port = 5000;
@@ -28,6 +30,8 @@ app.get('/', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/stations', stationRoutes);
+app.use('/reservation', reservationRoutes);
+app.use('/admin', adminRoutes);
 
 
 app.listen(port, () => {

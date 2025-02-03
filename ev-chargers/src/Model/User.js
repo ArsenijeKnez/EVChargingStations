@@ -1,7 +1,7 @@
 import React from 'react';
 
 export class User {
-    constructor(name, lastName, blocked, timeOfCreation, type, email, id) {
+    constructor(name, lastName, blocked, timeOfCreation, type, email, id, cars) {
         this.name = name;
         this.lastname = lastName;
         this.blocked = blocked;
@@ -9,16 +9,10 @@ export class User {
         this.userType = type;
         this.email = email;
         this.id = id;
+        this.blocked = blocked;
+        this.cars = cars;
     }
-    
-
-    isBlocked() {
-      return this.blocked === true;
-  }
-
-    Username(){
-      return this.username;
-    }
+  
 
     Role() {
       return this.userType;
@@ -33,6 +27,8 @@ export class User {
             obj.type,
             obj.email,
             obj.id,
+            obj.blocked,
+            obj.cars
         );
     }
 }

@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import icon from "../Images/EVStation.png";
 import {GetStationsGuest} from "../Services/StationService"
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-const customIcon = L.icon({
-  iconUrl: icon, 
-  iconSize: [30, 30], 
-  iconAnchor: [15, 30], 
-  popupAnchor: [0, -30], 
-});
+import { stationIcon } from "./Assets/MapIcons";
 
 const Map = () => {
   const [stations, setStations] = useState([]);
@@ -40,7 +32,7 @@ const Map = () => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {stations.map((station) => (
-        <Marker key={station.id} position={[station.coordinates.lat, station.coordinates.lng]} icon={customIcon} >
+        <Marker key={station.id} position={[station.coordinates.lat, station.coordinates.lng]} icon={stationIcon} >
           <Popup>{station.name}</Popup>
         </Marker>
       ))}
