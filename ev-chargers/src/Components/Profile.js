@@ -94,7 +94,7 @@ function Profile()
       <div className="container mt-5 ">
       <div className="row justify-content-center">
         <div className="col-md-6">
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit} className="border rounded">
       <div className="card">
       <div className="card-body">
             <div className="m-2">
