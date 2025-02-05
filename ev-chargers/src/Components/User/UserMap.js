@@ -43,8 +43,10 @@ const UserMap = () => {
   };
 
   const handleTravelTo = async (station) => {
+    
+
     if(!locationOn){
-      toast.info("Location must be turned to reserve station");
+      toast.info("Location must be turned on to reserve station");
       return;
     }
     const routs = await getRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
@@ -160,11 +162,6 @@ const UserMap = () => {
 
 
     const handleStartCharging = async () => {
-      if (
-        chargingTrack.currentPositionIndex >= chargingTrack.travelRoute.length - 1 &&
-        !isCharging
-      ) {
-        if (reservation) {
           const user = getUserFromLocalStorage();
           try {
             const result = await ActivateReservation({ Email: user.email });
@@ -176,20 +173,6 @@ const UserMap = () => {
           } catch (error) {
             console.error("Error activating reservation:", error);
           }
-        } else {
-          setChargingTrack((prevState) => ({
-            ...prevState,
-            currentPositionIndex: 0,
-          }));
-          updateChargingTrackInLocalStorage("currentPositionIndex", 0);
-        }
-  
-        setChargingTrack((prevState) => ({
-          ...prevState,
-          isParked: true,
-        }));
-        updateChargingTrackInLocalStorage("isParked", true);
-      }
     };
 
 
@@ -201,7 +184,7 @@ const UserMap = () => {
       selectedCar &&
       selectedCar.batteryPercentage > 0 &&
       !chargingTrack.isParked &&
-      chargingTrack.currentPositionIndex !== chargingTrack.travelRoute.length -1 ///aaaaaaaaa
+      chargingTrack.currentPositionIndex !== chargingTrack.travelRoute.length -1
     ) {
       const interval = setInterval(() => {
           setChargingTrack(prevState => {
@@ -227,34 +210,37 @@ const UserMap = () => {
   }, [chargingTrack.isParked, chargingTrack.currentPositionIndex,chargingTrack.travelRoute.length, selectedCar]);
   
   useEffect(() => {
-    
     if (isCharging && reservation) {
-      if(selectedCar.batteryPercentage < 100){
-      const interval = setInterval(() => {
+      if (selectedCar?.batteryPercentage < 100) {
+        const interval = setInterval(() => {
           const foundStation = stations.find(
             (station) => station.stationId === reservation.stationId
           );
-          selectedCar.batteryPercentage = Math.min(100, selectedCar.batteryPercentage + foundStation.chargerPower/60);
-          
-          ChangeCarBattery({
-            CarId: selectedCar.carId,
-            BatteryPercentage: selectedCar.batteryPercentage,
+          if (!foundStation) return; 
+  
+          setSelectedCar((prevCar) => {
+            if (!prevCar) return prevCar;
+  
+            const updatedBattery = Math.min(100, prevCar.batteryPercentage + foundStation.chargerPower / 60);
+  
+            ChangeCarBattery({
+              CarId: prevCar.carId,
+              BatteryPercentage: updatedBattery,
+            });
+  
+            return { ...prevCar, batteryPercentage: updatedBattery }; 
           });
-
-          
-      }, 1000);
-      return () => clearInterval(interval);
+        }, 1000);
+  
+        return () => clearInterval(interval);
+      } else {
+        setIsCharging(false);
+      }
     }
-   /*  else{
-      console.log("asdas");
-      const user = getUserFromLocalStorage();
-      EndReservation({Email: user.email});
-      setReservation(null);
-      setIsCharging(false);
-    } */
-    }
+  }, [isCharging, reservation, stations, selectedCar]);
+  
 
-  }, [isCharging, selectedCar, reservation, stations]);
+  const isCloseEnough = (a, b, epsilon = 0.0002) => Math.abs(a - b) < epsilon;
   
   return (
     <div style={{ display: "flex", height: "100vh" }}>
@@ -283,19 +269,15 @@ const UserMap = () => {
             <p>Battery: {selectedCar?.batteryPercentage?.toFixed(2)}%</p>
           </div>
         )}
-        {selectedCar && chargingTrack.travelRoute.length > 0 && (
+        {selectedCar && chargingTrack.travelRoute.length > 0 &&  !isCharging && (
           <div>
             <button
               onClick={() => {
+                updateChargingTrackInLocalStorage("isParked", !chargingTrack.isParked);
                 setChargingTrack((prevState) => ({
                   ...prevState,
                   isParked: !chargingTrack.isParked,
                 }));
-                updateChargingTrackInLocalStorage("isParked", true);
-                if(isCharging)
-                {
-                  handleCancelReservation();
-                }
               }}
             >
               {chargingTrack.isParked ? "Resume Travel" : "Park Car"}
@@ -307,7 +289,7 @@ const UserMap = () => {
     <h4>Reservation</h4>
     <p>Start: {new Date(reservation.start).toLocaleString()}</p>
     <p>End: {new Date(reservation.end).toLocaleString()}</p>
-    {!isCharging && <button onClick={handleCancelReservation}>Cancel Reservation</button>}
+    <button onClick={handleCancelReservation}>Cancel Reservation</button>
   </div>
 ) : (
   <p>No active reservations.</p>
@@ -372,11 +354,24 @@ const UserMap = () => {
                         Reserve
                       </button>
                     )}
-                    {reservation?.stationId === station.stationId  && (
-                      <button onClick={() => handleTravelTo(station)}>
-                        Travel to
-                      </button>
+
+                    {reservation?.stationId === station.stationId && 
+                      (!isCloseEnough(chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0], station.coordinates.lat) ||  
+                       !isCloseEnough(chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1], station.coordinates.lng)) && (
+                          <button onClick={() => handleTravelTo(station)}>
+                            Travel to
+                          </button>
                     )}
+
+                    {reservation?.stationId === station.stationId && 
+                      isCloseEnough(chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0], station.coordinates.lat) &&  
+                      isCloseEnough(chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1], station.coordinates.lng) && chargingTrack.isParked && !isCharging &&(
+                          <button onClick={() => handleStartCharging(station)}>
+                            Charge
+                          </button>
+                    )}
+
+
                   </div>
                 </Popup>
               </Marker>
