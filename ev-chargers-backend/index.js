@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const Reservation = require('./Schemas/Reservation');
 
 const authRoutes = require('./Routes/Authentification');
 const userRoutes = require('./Routes/User');
@@ -32,6 +33,18 @@ app.use('/user', userRoutes);
 app.use('/stations', stationRoutes);
 app.use('/reservation', reservationRoutes);
 app.use('/admin', adminRoutes);
+
+
+const deleteExpiredReservations = async () => {
+  try {
+    const result = await Reservation.deleteMany({ end: { $lt: new Date() } });
+    console.log(`Deleted ${result.deletedCount} expired reservations`);
+  } catch (err) {
+    console.error('Error deleting expired reservations:', err);
+  }
+};
+
+setInterval(deleteExpiredReservations, 10000);
 
 
 app.listen(port, () => {

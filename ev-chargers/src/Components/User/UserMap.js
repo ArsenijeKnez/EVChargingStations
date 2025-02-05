@@ -64,39 +64,8 @@ const UserMap = () => {
       toast.info("User cannot have two reservations");
       return;
     }
-    if(selectedCar.chargerType !== station.chargerType){
-      toast.warning("Charger types are incompatible");
-      return;
-    }
-    if(reservationDateTime.length !== 2){
-      if(!locationOn){
-        toast.info("Location must be turned to reserve station");
-        return;
-      }
-      const routs = await getRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
-      if(!routs)
-      {
-        toast.error("Cannot find path to selected station. Plese try another one.");
-        return;
-      }
-      const expense = (selectedCar.averageConsumption / selectedCar.batteryCapacity) * 100;
-      if(routs.length >= selectedCar.batteryPercentage/expense){
-        toast.warning("Station is too far to reach in time, try charging somewhere closer");
-        return;
-      }
-      if(postReserve(station)){
-        const track = new ChargingTrack(routs, false, 0, selectedCar.carId);
-        localStorage.setItem('chargingTrack', JSON.stringify(track));
-        setChargingTrack(track);                                
-      } 
-    }
-    else{
-      postReserve(station);
-    }
-    const response = GetReservations(reservationDateTime[0], reservationDateTime[1]);
-    if(response.status === 200){
-      setReservations(response.data.reservations);
-    }
+    await postReserve(station);
+    initializeData();
     
   };
 
@@ -110,7 +79,7 @@ const UserMap = () => {
   };
 
   const handleCarSelection =(car)=> {
-    if(!reservation)
+    if(!isCharging)
       setSelectedCar(car);
     else
       toast.warning("Can't switch cars while charging");
@@ -124,45 +93,6 @@ const UserMap = () => {
   }
 
   useEffect(() => {
-    const initializeData = async () => {
-      try {
-        const stationsResponse = await GetStations();
-        setStations(stationsResponse.data);
-        if (stationsResponse.data.length === 0) {
-          toast.info("No stations are visible at this time");
-        }
-  
-        const user = getUserFromLocalStorage();
-        const carsResponse = await GetCars(user.id);
-        setCars(carsResponse.data.cars);
-
-        const storedTrack = getChargingTrackFromLocalStorage();
-        if (storedTrack) {
-          const foundCar = carsResponse.data.cars.find(
-            (car) => car.carId === storedTrack.carId
-          );
-          setSelectedCar(foundCar);
-          setChargingTrack(storedTrack);
-        }
-        
-        const reservationResponse = await GetReservation(user.email);
-        if(reservationResponse.status === 200 && reservationResponse.data.reservation && reservationResponse.data.reservation.length !== 0){
-          setReservation(reservationResponse.data.reservation);
-          const foundCar = carsResponse.data.cars.find(
-            (car) => car.carId === reservationResponse.data.reservation.carId
-          );
-          setSelectedCar(foundCar);
-        }
-          
-      } catch (err) {
-        console.error("Error during initialization:", err);
-      }
-    };
-  
-    initializeData();
-  }, []);
-
-  useEffect(() => {
     if(reservationDateTime.length === 2){
     const response = GetReservations(reservationDateTime[0], reservationDateTime[1]);
     if(response.status === 200){
@@ -170,8 +100,66 @@ const UserMap = () => {
     }
     }
   }, [reservationDateTime]);
+
   useEffect(() => {
-    const handleChargingTrackUpdate = async () => {
+    if (reservation) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const reservationEndTime = new Date(reservation.end);
+  
+        if (now >= reservationEndTime) {
+          setReservation(null);
+          setIsCharging(false);
+        }
+      }, 10000); 
+  
+      return () => clearInterval(interval);
+    }
+  }, [reservation]);
+
+  const initializeData = async () => {
+    try {
+      const stationsResponse = await GetStations();
+      setStations(stationsResponse.data);
+      if (stationsResponse.data.length === 0) {
+        toast.info("No stations are visible at this time");
+      }
+
+      const user = getUserFromLocalStorage();
+      const carsResponse = await GetCars(user.id);
+      setCars(carsResponse.data.cars);
+
+      const storedTrack = getChargingTrackFromLocalStorage();
+      if (storedTrack) {
+        const foundCar = carsResponse.data.cars.find(
+          (car) => car.carId === storedTrack.carId
+        );
+        setSelectedCar(foundCar);
+        setChargingTrack(storedTrack);
+      }
+      
+      const reservationResponse = await GetReservation(user.email);
+      if(reservationResponse.status === 200 && reservationResponse.data.reservation && reservationResponse.data.reservation.length !== 0){
+        setReservation(reservationResponse.data.reservation);
+        const foundCar = carsResponse.data.cars.find(
+          (car) => car.carId === reservationResponse.data.reservation.carId
+        );
+        setSelectedCar(foundCar);
+      }
+        
+    } catch (err) {
+      console.error("Error during initialization:", err);
+    }
+  };
+
+
+  useEffect(() => {
+    
+    initializeData();
+  }, []);
+
+
+    const handleStartCharging = async () => {
       if (
         chargingTrack.currentPositionIndex >= chargingTrack.travelRoute.length - 1 &&
         !isCharging
@@ -203,25 +191,19 @@ const UserMap = () => {
         updateChargingTrackInLocalStorage("isParked", true);
       }
     };
-  
-    handleChargingTrackUpdate();
-  }, [
-    chargingTrack.isParked,
-    isCharging,
-    chargingTrack.currentPositionIndex,
-    reservation,
-    chargingTrack.travelRoute.length,
-  ]);
+
+
   
   useEffect(() => {
   
     if (
       chargingTrack.travelRoute.length > 0 &&
       selectedCar &&
-      selectedCar.batteryPercentage > 0
+      selectedCar.batteryPercentage > 0 &&
+      !chargingTrack.isParked &&
+      chargingTrack.currentPositionIndex !== chargingTrack.travelRoute.length -1 ///aaaaaaaaa
     ) {
       const interval = setInterval(() => {
-        if (!chargingTrack.isParked) {
           setChargingTrack(prevState => {
             const updatedIndex = prevState.currentPositionIndex + 1;
             updateChargingTrackInLocalStorage('currentPositionIndex', updatedIndex);
@@ -238,7 +220,6 @@ const UserMap = () => {
             CarId: selectedCar.carId,
             BatteryPercentage: selectedCar.batteryPercentage,
           });
-        }
       }, 1000);
   
       return () => clearInterval(interval);
@@ -264,13 +245,13 @@ const UserMap = () => {
       }, 1000);
       return () => clearInterval(interval);
     }
-    else{
+   /*  else{
       console.log("asdas");
       const user = getUserFromLocalStorage();
       EndReservation({Email: user.email});
       setReservation(null);
       setIsCharging(false);
-    }
+    } */
     }
 
   }, [isCharging, selectedCar, reservation, stations]);
@@ -417,6 +398,7 @@ const UserMap = () => {
                 chargingTrack.travelRoute[chargingTrack.currentPositionIndex]
               }
               icon={carIcon}
+              zIndexOffset={1000}
             ></Marker>
           )}
         </MapContainer>
