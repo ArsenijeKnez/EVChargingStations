@@ -12,7 +12,7 @@ router.post('/reserveStation', async (req, res) => {
 
     if(!start || !end){
       start = Date.now();
-      end = Date.now() + 30 * 1000; //TO CHANGE?
+      end = Date.now() + 600000; 
     }
 
     start = new Date(start);
@@ -33,6 +33,11 @@ router.post('/reserveStation', async (req, res) => {
       const previousReservation = await Reservation.findOne({userEmail});
       if(previousReservation){
         return res.status(400).send({ message: 'User cannot have two reservations'});
+      }
+
+      const mismatch = await Reservation.findOne({userEmail});
+      if(mismatch){
+        return res.status(400).send({ message: 'User desn\'t have a car with charger type ' + station.chargerType});
       }
 
       const existing = await Reservation.findOne({stationId});
