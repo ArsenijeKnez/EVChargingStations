@@ -43,6 +43,8 @@ function BlockUser(){
     };
 
     return (
+      <div className="container mt-5">
+        <div className="row justify-content-center">
       <div className="table-viewer">
         <h3>Block Users</h3>
         <table>
@@ -69,7 +71,8 @@ function BlockUser(){
     ))}
   </tbody>
 </table>
-
+</div>
+        </div>
         </div>
     )
 }

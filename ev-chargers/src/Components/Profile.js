@@ -98,22 +98,22 @@ function Profile()
       <div className="card">
       <div className="card-body">
             <div className="m-2">
-              <Form.Label>Name</Form.Label>
+              <Form.Label><h2>Name</h2></Form.Label>
               <Form.Control type="text" name="name" defaultValue={name} onChange={handleNameChange} />
               {renderErrorMessage("name")}
             </div>
             <div className="m-2">
-              <Form.Label>Lastname</Form.Label>
+              <Form.Label><h2>Lastname</h2></Form.Label>
               <Form.Control type="text" name="lastname" defaultValue={lastname} onChange={handleLastNameChange} />
               {renderErrorMessage("lastname")}
             </div>
             <div className="m-2">
-              <Form.Label>Email</Form.Label>
+              <Form.Label><h2>Email</h2></Form.Label>
               <Form.Control type="email" name="email" defaultValue={email} onChange={handleEmailChange} />
               {renderErrorMessage("email")}
             </div>
             <div className="m-2">
-              <Button variant="success" type="submit" >Save</Button>
+              <Button variant="outline-success" type="submit" className="w-100">Save</Button>
             </div>
             </div>
             </div>

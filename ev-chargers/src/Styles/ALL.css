@@ -1,3 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+h2,h3,th {
+  font-family: "Roboto", serif !important;
+  font-optical-sizing: auto !important;
+  font-weight: 280 !important;
+  font-style: normal !important;
+  font-variation-settings:
+    "wdth" 100 !important;
+
+}
+
+h1 {
+  font-family: "Roboto", serif !important;
+  font-optical-sizing: auto !important;
+  font-weight: 360 !important;
+  font-style: normal !important;
+}
+
+p,td{
+  font-family: "Roboto", serif !important;
+  font-optical-sizing: auto !important;
+  font-weight: 200 !important;
+  font-style: normal !important;
+  font-variation-settings:
+    "wdth" 100 !important;
+}
+
+
+/* h1{
+  font-family: 'Alex Brush', sans-serif;
+}
+
+p {
+  font-family: 'Oswald', sans-serif;
+}
+
+ h2  {
+  font-family: 'Charm', serif;
+} 
+
+h3 {
+  font-family: 'PT Sans', sans-serif;
+} */
+
+
 html, body {
   height: 100%;
   margin: 0;
@@ -77,13 +123,10 @@ input {
 
 button {
   padding: 8px 12px;
-  font-size: 14px;
   color: #fff;
-  background-color: #31d357;
+  background-color: #28a745;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-right: 10px;
+  border-radius: 4px !important;
 }
 
 
@@ -120,7 +163,6 @@ button {
 }
 
 .logs-viewer h1 {
-  font-size: 24px;
   margin-bottom: 20px;
   color: #444;
 }
@@ -130,7 +172,6 @@ button {
 }
 
 .filters h3 {
-  font-size: 18px;
   margin-bottom: 10px;
   color: #555;
 }
@@ -198,7 +239,6 @@ tbody tr:hover {
 .table-viewer {
   max-width: 1100px;
   margin: 0 auto;
-  margin-top: 20px;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 8px;

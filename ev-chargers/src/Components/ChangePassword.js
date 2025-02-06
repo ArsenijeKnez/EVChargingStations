@@ -3,7 +3,7 @@ import { ChangeUserPassword } from "../Services/UserService";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import {User, getUserFromLocalStorage} from "../Model/User";
-import { Form } from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 
 function ChangePassword()
 {
@@ -59,17 +59,17 @@ function ChangePassword()
             <div className="card">
               <div className="card-body">
               <div className="m-2">
-                <label htmlFor="oldPassword" className="form-label">Old password</label>
+                <label htmlFor="oldPassword" className="form-label"><h2>Old password</h2></label>
                 <input type="password" name="oldPassword" className="form-control" />
                 {renderErrorMessage("oldPassword")}
               </div>
               <div className="m-2">
-                <label htmlFor="newPassword" className="form-label">New password</label>
+                <label htmlFor="newPassword" className="form-label"><h2>New password</h2></label>
                 <input type="password" name="newPassword" className="form-control" />
                 {renderErrorMessage("newPassword")}
               </div>
               <div className="m-2">
-                <input type="submit" value="Change password" className="btn btn-success"/>
+              <Button variant="outline-success" type="submit" className="w-100">Change Password</Button>
               </div>
               </div>
 

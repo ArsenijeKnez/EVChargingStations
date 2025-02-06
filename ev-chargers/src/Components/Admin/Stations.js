@@ -202,9 +202,9 @@ const AddStation = () => {
       <Form onSubmit={handleSubmit} className="bg-light border border-gray rounded">
   <div className="card">
     <div className="card-body">
-    <h2>Add New Station</h2>
+    <h1>Add New Station</h1>
       <div className="m-2">
-        <Form.Label>Name</Form.Label>
+        <Form.Label><h2>Name</h2></Form.Label>
         <Form.Control
           type="text"
           name="name"
@@ -215,7 +215,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Form.Label>Charger Type</Form.Label>
+        <Form.Label><h2>Charger Type</h2></Form.Label>
         <Form.Control
           type="text"
           name="chargerType"
@@ -226,7 +226,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Form.Label>Charger Power (kW)</Form.Label>
+        <Form.Label><h2>Charger Power (kW)</h2></Form.Label>
         <Form.Control
           type="number"
           name="chargerPower"
@@ -237,7 +237,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Form.Label>Charger Availability</Form.Label>
+        <Form.Label><h2>Charger Availability</h2></Form.Label>
         <Form.Select
           name="chargerAvailability"
           defaultValue={stationData.chargerAvailability}
@@ -250,7 +250,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Form.Label>Latitude</Form.Label>
+        <Form.Label><h2>Latitude</h2></Form.Label>
         <Form.Control
           type="number"
           step="any"
@@ -262,7 +262,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Form.Label>Longitude</Form.Label>
+        <Form.Label><h2>Longitude</h2></Form.Label>
         <Form.Control
           type="number"
           step="any"
@@ -274,7 +274,7 @@ const AddStation = () => {
       </div>
 
       <div className="m-2">
-        <Button variant="success" type="submit">Add Station</Button>
+        <Button variant="outline-success" type="submit" className="w-100">Add Station</Button>
       </div>
     </div>
   </div>

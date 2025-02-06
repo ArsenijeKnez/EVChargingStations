@@ -80,6 +80,7 @@ const EventLogs = () => {
   };
 
   return (
+    <div className="container mt-5">
     <div className="logs-viewer">
       <h1>Logs Viewer</h1>
   
@@ -123,6 +124,7 @@ const EventLogs = () => {
         renderLogs()
       )}
       {error && <p className="error">{error}</p>}
+    </div>
     </div>
   );  
 };

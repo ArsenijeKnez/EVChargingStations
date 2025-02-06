@@ -66,27 +66,27 @@ function Login() {
             <Form onSubmit={handleSubmit} className="bg-light border border-gray rounded">
               <div className="card">
                 <div className="card-body">
-                  <h3 className="card-title">Login</h3>
-                  <Form.Group controlId="email">
-                    <Form.Label>Email</Form.Label>
+                  <h1 className="card-title">Login</h1>
+                  <Form.Group controlId="email" className="container mt-3">
+                    <Form.Label><h2>Email</h2></Form.Label>
                     <Form.Control type="text" name="emai"/>
                     {renderErrorMessage("email")}
                   </Form.Group>
-                  <Form.Group controlId="password">
-                    <Form.Label>Password</Form.Label>
+                  <Form.Group controlId="password" className="container mt-2">
+                    <Form.Label><h2>Password</h2></Form.Label>
                     <Form.Control type="password" name="password"/>
                     {renderErrorMessage("password")}
                   </Form.Group>
-                  <Form.Group>
-                    <Button variant="success" type="submit" className="mt-2">
+                  <Form.Group className="container mt-2">
+                    <Button variant="outline-success" type="submit" className="w-100">
                       Login
                     </Button>
                   </Form.Group>
-                  <div>
-                    Don't have an account? Go to{" "}
+                  <div className="container mt-3">
+                    <p>Don't have an account? Go to{" "}
                     <a href="/register" className="link-dark">
                       Registration
-                    </a>
+                    </a></p>
                   </div>
                 </div>
 

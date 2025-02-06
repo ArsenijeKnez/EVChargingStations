@@ -104,38 +104,38 @@ function AddVehicle() {
         <>
         <ListVehicles cars = {cars} fetchCars = {fetchCars}/>
                 <div className="container mt-5 ">
-                    <h3>Add New Vehicle</h3>
+                    <h2>Add New Vehicle</h2>
         <div className="row justify-content-center">
           <div className="col-md-6">
         <Form onSubmit={handleSubmit}>
         <div className="card">
         <div className="card-body">
                     <Form.Group controlId="name">
-                        <Form.Label>Model</Form.Label>
+                        <Form.Label><h2>Model</h2></Form.Label>
                         <Form.Control type="text" name="model" />
                         {renderErrorMessage("model")}
                     </Form.Group>
 
                     <Form.Group controlId="chargerType">
-                        <Form.Label>Charger Type</Form.Label>
+                        <Form.Label><h2>Charger Type</h2></Form.Label>
                         <Form.Control type="text" name="chargerType" />
                         {renderErrorMessage("chargerType")}
                     </Form.Group>
 
                     <Form.Group controlId="batteryCapacity">
-                        <Form.Label>Battery Capacity</Form.Label>
+                        <Form.Label><h2>Battery Capacity</h2></Form.Label>
                         <Form.Control type="number" name="batteryCapacity" />
                         {renderErrorMessage("batteryCapacity")}
                     </Form.Group>
 
                     <Form.Group controlId="yearOfProduction">
-                        <Form.Label>Year Of Production</Form.Label>
+                        <Form.Label><h2>Year Of Production</h2></Form.Label>
                         <Form.Control type="date" name="yearOfProduction" />
                         {renderErrorMessage("yearOfProduction")}
                     </Form.Group>
 
                     <Form.Group controlId="averageConsumption">
-                        <Form.Label>Average Consumption</Form.Label>
+                        <Form.Label><h2>Average Consumption</h2></Form.Label>
                         <Form.Control type="number" name="averageConsumption" />
                         {renderErrorMessage("averageConsumption")}
                     </Form.Group>
