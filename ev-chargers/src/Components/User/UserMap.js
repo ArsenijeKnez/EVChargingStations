@@ -332,7 +332,7 @@ const UserMap = () => {
   
             return (
               <Marker
-                key={station.id}
+                key={station.stationId}
                 position={[station.coordinates.lat, station.coordinates.lng]}
                 icon={getStationIcon(station.chargerAvailability)}
               >

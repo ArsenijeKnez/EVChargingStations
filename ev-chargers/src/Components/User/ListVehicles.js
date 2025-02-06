@@ -21,6 +21,7 @@ const ListVehicles = ({ cars, fetchCars }) => {
   };
 
   return (
+    <div className="container mt-5">
     <div className="table-viewer">
       <h2>User Vehicles</h2>
       {cars.length === 0 ? (
@@ -60,6 +61,7 @@ const ListVehicles = ({ cars, fetchCars }) => {
           </tbody>
         </table>
       )}
+    </div>
     </div>
   );
 };

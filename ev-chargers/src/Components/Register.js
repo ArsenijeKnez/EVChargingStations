@@ -93,41 +93,42 @@ function Register() {
         <Form onSubmit={handleSubmit}>
         <div className="card">
         <div className="card-body">
-                    <Form.Group controlId="name">
-                        <Form.Label>Name</Form.Label>
+        <h1>Register</h1>
+                    <Form.Group controlId="name" className="container mt-3 ">
+                        <Form.Label><h2>Name</h2></Form.Label>
                         <Form.Control type="text" name="name" />
                         {renderErrorMessage("name")}
                     </Form.Group>
 
-                    <Form.Group controlId="lastname">
-                        <Form.Label>Lastname</Form.Label>
+                    <Form.Group controlId="lastname" className="container mt-2 ">
+                        <Form.Label><h2>Lastname</h2></Form.Label>
                         <Form.Control type="text" name="lastname" />
                         {renderErrorMessage("lastname")}
                     </Form.Group>
 
-                    <Form.Group controlId="email">
-                        <Form.Label>Email</Form.Label>
+                    <Form.Group controlId="email" className="container mt-2 ">
+                        <Form.Label><h2>Email</h2></Form.Label>
                         <Form.Control type="email" name="email" />
                         {renderErrorMessage("email")}
                     </Form.Group>
 
-                    <Form.Group controlId="password">
-                        <Form.Label>Password</Form.Label>
+                    <Form.Group controlId="password" className="container mt-2 ">
+                        <Form.Label><h2>Password</h2></Form.Label>
                         <Form.Control type="password" name="password" />
                         {renderErrorMessage("password")}
                     </Form.Group>
 
-                    <Form.Group controlId="password2">
-                        <Form.Label>Password check</Form.Label>
+                    <Form.Group controlId="password2" className="container mt-2 ">
+                        <Form.Label><h2>Password check</h2></Form.Label>
                         <Form.Control type="password" name="password2" />
                         {renderErrorMessage("password check")}
                     </Form.Group>
 
-                    <Form.Group controlId="usertype">
-                        <Form.Label>User Type</Form.Label>
+                    <Form.Group controlId="usertype" className="container mt-2 ">
+                        <Form.Label><h2>User Type</h2></Form.Label>
                         <Form.Control as="select" name="usertype">
-                            <option value="User">User</option>
-                            <option value="Admin">Admin</option>
+                            <option value="User"><p>User</p></option>
+                            <option value="Admin"><p>Admin</p></option>
                         </Form.Control>
                         {renderErrorMessage("usertype")}
                     </Form.Group>

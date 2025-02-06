@@ -39,3 +39,13 @@ export const CreateStation = async (data) => {
     return handleApiError(error);
   }
 };
+
+export const DeleteStation = async (id) => {
+    try {
+        const response = await axios.delete(`${process.env.REACT_APP_API_URL}/stations/${id}`);
+        toast.success('Station deleted successfully');
+        return response;
+    } catch (error) {
+        return handleApiError(error);
+    }
+};

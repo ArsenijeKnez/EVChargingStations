@@ -68,6 +68,22 @@ router.get('/', async (req, res) => {
       res.status(500).send('Error saving stations');
     }
   });
+
+  router.delete('/:id', async (req, res) => {
+    const { id:stationId } = req.params;
+   
+    try {
+      const station = await Station.findOne({stationId});
+      if (!station) {
+        return res.status(404).send({ message: 'Station not found' });
+      }
+      await Station.deleteOne({stationId});
+      res.status(200).send({ message: 'Station deleted successfully' });
+    } catch (err) {
+      console.error('Error deleting station:', err);
+      res.status(500).send({ message: 'Error deleting station' });
+    }
+  });
   
 
   module.exports = router;

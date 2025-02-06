@@ -39,7 +39,7 @@ function Header() {
                     <Nav.Item>
 
                         <Link to='/home/admin/EventLogs' className={` nav-link  ${location.pathname === '/home/admin/EventLogs' ? 'active link-light ' : 'link-light hoverLink '}`}>
-                            Event Logs
+                        <h3>Event Logs</h3>
                         </Link>
                     </Nav.Item>
 
@@ -48,7 +48,7 @@ function Header() {
                     <Nav.Item>
 
                         <Link to='/home/admin/blockUser' className={`nav-link  ${location.pathname === '/home/admin/blockUser' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Block Users
+                        <h3>Block Users</h3>
                         </Link>
                     </Nav.Item>
 
@@ -57,7 +57,7 @@ function Header() {
                     <Nav.Item>
 
                         <Link to='/home/admin/stations' className={`nav-link  ${location.pathname === '/home/admin/stations' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Stations
+                            <h3>Stations</h3>
                         </Link>
                     </Nav.Item>
 
@@ -66,7 +66,7 @@ function Header() {
                 {userRole === 'User' && (
                     <Nav.Item>
                         <Link to='/home/map' className={`nav-link  ${location.pathname === '/home/map' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            EV Station Map
+                        <h3>EV Station Map</h3>
                         </Link>
                     </Nav.Item>
 
@@ -74,7 +74,7 @@ function Header() {
                 {userRole === 'User' && (
                     <Nav.Item>
                         <Link to='/home/addVehicle' className={`nav-link  ${location.pathname === '/home/addVehicle' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Add Vehicle
+                        <h3>Add Vehicle</h3>
                         </Link>
                     </Nav.Item>
 
@@ -82,14 +82,14 @@ function Header() {
                 {userRole && (
                     <Nav.Item>
                         <Link to='/home/profile' className={`nav-link  ${location.pathname === '/home/profile' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Edit Profile
+                        <h3>Edit Profile</h3>
                         </Link>
                     </Nav.Item>
                 )}
                 {userRole && (
                     <Nav.Item>
                         <Link to='/home/changePassword' className={`nav-link  ${location.pathname === '/home/changePassword' ? 'active link-light' : 'link-light hoverLink '}`}>
-                            Change password
+                        <h3>Change password</h3>
                         </Link>
                     </Nav.Item>
 
@@ -97,7 +97,7 @@ function Header() {
                 {userRole && (
                     <Nav.Item className="ms-auto">
                         <Button variant="outline-success" onClick={logout} className='btn btn-link link-light text-decoration-none'>
-                            Log out
+                        <h3>Log out</h3>
                         </Button>
                     </Nav.Item>
 

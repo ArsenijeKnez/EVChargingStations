@@ -32,7 +32,7 @@ const Map = () => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {stations.map((station) => (
-        <Marker key={station.id} position={[station.coordinates.lat, station.coordinates.lng]} icon={stationIcon} >
+        <Marker key={station.stationId} position={[station.coordinates.lat, station.coordinates.lng]} icon={stationIcon} >
           <Popup>{station.name}</Popup>
         </Marker>
       ))}
