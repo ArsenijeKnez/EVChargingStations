@@ -3,7 +3,7 @@
 h2,h3,th {
   font-family: "Roboto", serif !important;
   font-optical-sizing: auto !important;
-  font-weight: 280 !important;
+  font-weight: 180 !important;
   font-style: normal !important;
   font-variation-settings:
     "wdth" 100 !important;
@@ -20,10 +20,11 @@ h1 {
 p,td{
   font-family: "Roboto", serif !important;
   font-optical-sizing: auto !important;
-  font-weight: 200 !important;
+  font-weight: 400 !important;
   font-style: normal !important;
   font-variation-settings:
     "wdth" 100 !important;
+  color: #444;
 }
 
 

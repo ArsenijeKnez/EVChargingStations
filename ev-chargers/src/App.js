@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import "./Styles/ALL.css";
 import Login from "./Components/Login";
 import Map from "./Components/Map";
 import { ToastContainer, toast } from 'react-toastify';
