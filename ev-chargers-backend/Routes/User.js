@@ -2,8 +2,10 @@ const express = require('express');
 const User = require('../Schemas/User');
 const Car = require('../Schemas/Car');
 const router = express.Router();
+const verifyAny = require('./JWTverification/VerifyAny');
+const verifyUser = require('./JWTverification/VerifyUser');
 
-router.put('/updateProfile', async (req, res) => {
+router.put('/updateProfile', verifyAny, async (req, res) => {
   try {
     const { Id: userId, Name: name, Lastname: lastName, Email: email } = req.body;
 
@@ -44,7 +46,7 @@ router.put('/updateProfile', async (req, res) => {
   }
 });
 
-router.put('/changePassword', async (req, res) => {
+router.put('/changePassword', verifyAny, async (req, res) => {
     try {
       const { Email: email, OldPassword: oldPassword, NewPassword: newPassword } = req.body;
   
@@ -73,7 +75,7 @@ router.put('/changePassword', async (req, res) => {
     }
   });
 
-  router.post('/addCar', async (req, res) => {
+  router.post('/addCar', verifyUser, async (req, res) => {
     try {
       
       const {Model: model, ChargerType: chargerType, BatteryCapacity: batteryCapacity, YearOfProduction: yearOfProduction, AverageConsumption: averageConsumption, UserId: userId} = req.body;
@@ -112,7 +114,7 @@ router.put('/changePassword', async (req, res) => {
     }
   });
 
-  router.delete('/removeCar', async (req, res) => {
+  router.delete('/removeCar', verifyAny, async (req, res) => {
     try {
       const { CarId: carId} = req.body;
   
@@ -137,7 +139,7 @@ router.put('/changePassword', async (req, res) => {
     }
   });
 
-  router.get('/getCars', async (req, res) => {
+  router.get('/getCars', verifyAny, async (req, res) => {
     try {
       
       const {Id : userId} = req.query;
@@ -160,7 +162,7 @@ router.put('/changePassword', async (req, res) => {
     }
   });
 
-  router.put('/changeBattery', async (req, res) => {
+  router.put('/changeBattery', verifyUser, async (req, res) => {
     try {
       const {CarId: carId, BatteryPercentage: batteryPercentage} = req.body;
   

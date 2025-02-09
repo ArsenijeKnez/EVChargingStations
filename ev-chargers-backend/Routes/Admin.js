@@ -1,10 +1,10 @@
 const express = require('express');
 const EventLog = require('../Schemas/EventLog');
 const User = require('../Schemas/User');
-const Station = require('../Schemas/Station');
 const router = express.Router();
+const verifyAdmin = require('./JWTverification/VerifyAdmin');
 
-router.get('/logs', async (req, res) => {
+router.get('/logs', verifyAdmin, async (req, res) => {
   try {
     const logs = await EventLog.find();
     res.status(200).json(logs);
@@ -13,7 +13,7 @@ router.get('/logs', async (req, res) => {
   }
 });
 
-router.post('/logs/filter', async (req, res) => {
+router.post('/logs/filter', verifyAdmin, async (req, res) => {
   const { eventType, userId, startDate, endDate } = req.body;
   
   const filter = {};
@@ -33,31 +33,32 @@ router.post('/logs/filter', async (req, res) => {
   }
 });
 
-router.get('/getUsers', async (req, res) => {
+router.get('/getUsers', verifyAdmin, async (req, res) => {
   try {
-    const users = await User.find({type: 'User'});
+    const users = await User.find({ type: 'User' });
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch logs' });
+    res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
 
-router.post('/unBlockUser', async (req, res) => {
+router.post('/unBlockUser', verifyAdmin, async (req, res) => {
   try {
-    const {UserId: userId} = req.body;
+    const { UserId: userId } = req.body;
 
     const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     user.blocked = !user.blocked;
+    await user.save();
 
-    const message = user.blocked? 'User blocked' : 'User unblocked';
-
-    user.save();
-    
     res.status(200).json({
-      message: message
+      message: user.blocked ? 'User blocked' : 'User unblocked',
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to block user' });
+    res.status(500).json({ error: 'Failed to update user status' });
   }
 });
 

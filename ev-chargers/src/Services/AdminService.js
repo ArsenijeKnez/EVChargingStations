@@ -2,9 +2,7 @@ import axios from 'axios';
 //import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-//import jwt from 'jsonwebtoken';
-//import {jwtDecode} from "jwt-decode";
-//import {User} from "../Model/User";
+import API from './RequestHeader';
 
 const handleApiError = (error) => {
     const errorMessage = error.response?.data || error.message;
@@ -12,40 +10,34 @@ const handleApiError = (error) => {
     return errorMessage;
   };
 
-export const GetLogs = async () => {
+  export const GetLogs = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/logs`);
-      return response;
+      return await API.get('/admin/logs');
     } catch (error) {
       return handleApiError(error);
     }
   };
-
-export const GetLogsFilterd = async (data) => {
+  
+  export const GetLogsFilterd = async (data) => {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/admin/logs/filter`, data);
-      return response;
+      return await API.post('/admin/logs/filter', data);
     } catch (error) {
       return handleApiError(error);
     }
   };
-
+  
   export const GetUsers = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/getUsers`);
-      return response;
+      return await API.get('/admin/getUsers');
     } catch (error) {
       return handleApiError(error);
     }
   };
-
   
-export const UnBlockUser = async (data) => {
-  try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/admin/unBlockUser`, data);
-    return response;
-  } catch (error) {
-    return handleApiError(error);
-  }
-};
-
+  export const UnBlockUser = async (data) => {
+    try {
+      return await API.post('/admin/unBlockUser', data);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  };

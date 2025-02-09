@@ -1,8 +1,10 @@
 const express = require('express');
 const Station = require('../Schemas/Station');
-const router = express.Router()
+const router = express.Router();
+const verifyAny = require('./JWTverification/VerifyAny');
+const verifyAdmin = require('./JWTverification/VerifyAdmin');
 
-router.get('/', async (req, res) => {
+router.get('/', verifyAny, async (req, res) => {
     try {
       const stations = await Station.find();
       res.json(stations);
@@ -22,7 +24,7 @@ router.get('/', async (req, res) => {
     }
   });
   
-  router.post('/post', async (req, res) => {
+  router.post('/post', verifyAdmin, async (req, res) => {
     const { name, chargerType, chargerPower, chargerAvailability, coordinates } = req.body;
 
     if ( !name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
@@ -46,7 +48,7 @@ router.get('/', async (req, res) => {
   });
   
   
-  router.post('/post/bulk', async (req, res) => {
+  router.post('/post/bulk', verifyAdmin, async (req, res) => {
     const stations = req.body;
   
     if (!Array.isArray(stations) || stations.length === 0) {
@@ -69,7 +71,7 @@ router.get('/', async (req, res) => {
     }
   });
 
-  router.delete('/:id', async (req, res) => {
+  router.delete('/:id', verifyAdmin, async (req, res) => {
     const { id:stationId } = req.params;
    
     try {
@@ -85,7 +87,7 @@ router.get('/', async (req, res) => {
     }
   });
 
-  router.put('/put/availability', async (req, res) => {
+  router.put('/put/availability', verifyAdmin, async (req, res) => {
     const { stationId, availability } = req.body;
 
     if (!stationId || !availability) {

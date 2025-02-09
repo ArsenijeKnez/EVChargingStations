@@ -5,7 +5,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import { Form, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import jwt_decode from "jwt-decode";
 
 function Login() {
     const [errorMessages, setErrorMessages] = useState({});

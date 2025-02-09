@@ -1,9 +1,10 @@
 const express = require('express');
 const Reservation = require('../Schemas/Reservation');
 const Station = require('../Schemas/Station');
-const router = express.Router()
+const router = express.Router();
+const verifyUser = require('./JWTverification/VerifyUser');
 
-router.post('/reserveStation', async (req, res) => {
+router.post('/reserveStation', verifyUser, async (req, res) => {
     let { Email: userEmail , CarID: carId, StationID: stationId, Start: start, End: end } = req.body;
   
     if ( !userEmail || !carId || !stationId ) {
@@ -64,7 +65,7 @@ router.post('/reserveStation', async (req, res) => {
     }
   });
 
-  router.get('/getReservations/SelectedPeriod', async (req, res) => {
+  router.get('/getReservations/SelectedPeriod', verifyUser, async (req, res) => {
     const {Start: start, End: end } = req.query;
   
     if (!start || !end) {
@@ -82,7 +83,7 @@ router.post('/reserveStation', async (req, res) => {
     }
   });
 
-  router.get('/getReservations/SelectedUser', async (req, res) => {
+  router.get('/getReservations/SelectedUser', verifyUser, async (req, res) => {
     const {Email: userEmail } = req.query;
   
     if (!userEmail) {
@@ -97,7 +98,7 @@ router.post('/reserveStation', async (req, res) => {
     }
   });
 
-  router.put('/activateReservation', async (req, res) => {
+  router.put('/activateReservation', verifyUser, async (req, res) => {
     const { Email: userEmail } = req.body;
 
     if (!userEmail) {
@@ -130,7 +131,7 @@ router.post('/reserveStation', async (req, res) => {
   });
   
 
-  router.delete('/endReservation', async (req, res) => {
+  router.delete('/endReservation', verifyUser, async (req, res) => {
     const { Email: userEmail } = req.body;
 
     if (!userEmail) {
