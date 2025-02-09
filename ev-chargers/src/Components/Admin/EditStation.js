@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
-const EditStation = ({ handleDeleteStation, handleChangeStationStatus, toggleModal, isModalOpen }) => {
-  const [stationId, setStationId] = useState("");
+const EditStation = ({ stationId, handleDeleteStation, handleChangeStationStatus, toggleModal, isModalOpen }) => {
   const [status, setStatus] = useState("Available");
 
   const handleSubmit = (e) => {
@@ -15,17 +14,7 @@ const EditStation = ({ handleDeleteStation, handleChangeStationStatus, toggleMod
       <div style={styles.modal}>
         <h2>Edit Station</h2>
         <form onSubmit={handleSubmit}>
-          <div style={styles.inputGroup}>
-            <label htmlFor="stationId">Station ID:</label>
-            <input
-              type="text"
-              id="stationId"
-              value={stationId}
-              onChange={(e) => setStationId(e.target.value)}
-              required
-            />
-          </div>
-          <div style={styles.inputGroup}>
+          <div className="container mt-2" style={styles.inputGroup}>
             <label htmlFor="status">Change Status:</label>
             <select
               id="status"

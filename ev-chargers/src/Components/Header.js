@@ -33,7 +33,7 @@ function Header() {
     }, [])
     return (
         <div style={{ backgroundColor: '#000000'}}>
-            <Nav style={{ borderBottom: '3px solid #b0b0b0',flex:1,width:"100%", height:"100%" }} >
+            <Nav style={{ flex:1,width:"100%", height:"100%" }} >
                 {userRole === 'Admin' && (
                     <Nav.Item>
 

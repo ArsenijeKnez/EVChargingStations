@@ -49,3 +49,12 @@ export const DeleteStation = async (id) => {
         return handleApiError(error);
     }
 };
+
+export const ChangeAvailability = async (data) => {
+  try {
+    const response = await axios.put(`${process.env.REACT_APP_API_URL}/stations/put/availability`, data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};

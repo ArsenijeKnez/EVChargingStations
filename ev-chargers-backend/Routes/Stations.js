@@ -84,6 +84,34 @@ router.get('/', async (req, res) => {
       res.status(500).send({ message: 'Error deleting station' });
     }
   });
+
+  router.put('/put/availability', async (req, res) => {
+    const { stationId, availability } = req.body;
+
+    if (!stationId || !availability) {
+      return res.status(400).send('Request must have station id and availability');
+    }
+  
+    try {
+
+      const updatedStation = await Station.findOneAndUpdate(
+        { stationId },
+        {
+          $set: { chargerAvailability: availability },
+        },
+        { new: true }
+      );
+      if (updatedStation)
+        res.status(200).json(updatedStation);
+      else
+        res.status(404).json({
+          message: 'Station not found.'
+        });
+    } catch (err) {
+      console.error('Error changing station availability:', err);
+      res.status(500).send('Error changing station availability');
+    }
+  });
   
 
   module.exports = router;

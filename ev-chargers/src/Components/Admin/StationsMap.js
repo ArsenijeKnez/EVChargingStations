@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { GetStations, DeleteStation} from "../../Services/StationService";
+import { GetStations, DeleteStation, ChangeAvailability} from "../../Services/StationService";
 import { stationIcon, repairingStationIcon, reservedStationIcon } from "../Assets/MapIcons";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -11,19 +11,20 @@ import EditStation from "./EditStation";
 const StationsMap = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [stations, setStations] = useState([]);
+  const [stationId, setStationId] = useState(null);
+
+  const fetchStations = async () => {
+    try {
+      const stations = await GetStations();
+      setStations(stations.data); 
+      if(stations.data.length === 0){
+        toast.info("No stations are visible at this time");}
+    } catch (err) {
+      console.error("Error fetching stations:", err); 
+    }
+  };
 
   useEffect(() => {
-    const fetchStations = async () => {
-      try {
-        const stations = await GetStations();
-        setStations(stations.data); 
-        if(stations.data.length === 0){
-          toast.info("No stations are visible at this time");}
-      } catch (err) {
-        console.error("Error fetching stations:", err); 
-      }
-    };
-
     fetchStations();
   }, []); 
 
@@ -42,8 +43,24 @@ const handleDeleteStation = async (id) => {
     }
   };
 
-  const handleChangeStationStatus = async (id, status) => {
-    //I will implement later 
+  const handleChangeStationStatus = async (stationId, status) => {
+    try {
+      const data = {
+        stationId: stationId,
+        availability: status
+      }
+      const response = await ChangeAvailability(data);
+      
+      if (response.status === 200) {  
+        fetchStations();
+        toast.success("Station changed successfully");
+      } else {
+        toast.error("Failed to change station");
+      }
+    } catch (error) {
+      console.error("Error changing station availability:", error);
+      toast.error("Failed to change station");
+    }
   };
 
   return (
@@ -92,13 +109,14 @@ const handleDeleteStation = async (id) => {
                           <strong>Availability:</strong>{" "}
                           {station.chargerAvailability}
                         </p>
-                        <button onClick={() => setIsModalOpen(true)}>Edit</button>
+                        <button onClick={() => {setStationId(station.stationId); setIsModalOpen(true); }}>Edit</button>
                       </div>
                     </Popup>
                   </Marker>
                 );
               })}
   </MapContainer> <EditStation
+  stationId={stationId}
           handleDeleteStation={handleDeleteStation}
           handleChangeStationStatus={handleChangeStationStatus}
           toggleModal={() => setIsModalOpen(!isModalOpen)}
