@@ -1,9 +1,11 @@
 import location from "../../../Images/Location.png";
 import calendar from "../../../Images/Calendar.png";
+import lookup from "../../../Images/Lookup.png"
 
-const MapControls = ({ handleLocationClick, toggleModal }) => (
+const MapControls = ({ handleLocationClick, toggleModal, handleBestRoute }) => (
     <>
       <button
+        title="Your Location"
         style={{
           position: "absolute",
           zIndex: 1000,
@@ -22,6 +24,7 @@ const MapControls = ({ handleLocationClick, toggleModal }) => (
         />
       </button>
       <button
+        title="Lookup reservations"
         style={{
           position: "absolute",
           zIndex: 1000,
@@ -36,6 +39,25 @@ const MapControls = ({ handleLocationClick, toggleModal }) => (
         <img
           src={calendar}
           alt="Calendar button"
+          style={{ width: "41px", height: "41px" }}
+        />
+      </button>
+      <button
+        title="Find nearest charger"
+        style={{
+          position: "absolute",
+          zIndex: 1000,
+          top: "60px",
+          right: "140px",
+          backgroundColor: "transparent",
+          border: "none",
+          cursor: "pointer",
+        }}
+        onClick={handleBestRoute}
+      >
+        <img
+          src={lookup}
+          alt="Best charger"
           style={{ width: "41px", height: "41px" }}
         />
       </button>

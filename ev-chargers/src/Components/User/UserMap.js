@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import { GetCars, ChangeCarBattery, Reserve, GetReservation, GetReservations, EndReservation, ActivateReservation} from "../../Services/UserService";
-import { getRoute } from "../../Services/RouteApi";
+import { getRoute, getBestRoute } from "../../Services/RouteService";
 import {getUserFromLocalStorage} from "../../Model/User";
 import {getChargingTrackFromLocalStorage, ChargingTrack, updateChargingTrackInLocalStorage} from "../../Model/ChargingTrack";
 import "leaflet/dist/leaflet.css";
@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DateSelector from "./UserMapComponents/DateSelection";
 import MapControls from "./UserMapComponents/MapControls";
-
+import polyline from "@mapbox/polyline";
 
 const UserMap = () => {
   const [stations, setStations] = useState([]);
@@ -43,18 +43,18 @@ const UserMap = () => {
   };
 
   const handleTravelTo = async (station) => {
-    
-
+  
     if(!locationOn){
-      toast.info("Location must be turned on to reserve station");
+      toast.info("Location must be turned on");
       return;
     }
-    const routs = await getRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
-    if(!routs)
+    const response = await getRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], [station.coordinates.lng, station.coordinates.lat]);
+    if(response.status !== 200)
     {
-      toast.error("Cannot find path to the station.");
+      toast.error(response.message || "Cannot find path to the station.");
       return;
     }
+    const routs = polyline.decode(response.data.route);
     const track = new ChargingTrack(routs, false, 0, selectedCar.carId);
     localStorage.setItem('chargingTrack', JSON.stringify(track));
     setChargingTrack(track);                                
@@ -68,7 +68,33 @@ const UserMap = () => {
     }
     await postReserve(station);
     initializeData();
-    
+  };
+
+  const handleBestRoute = async () => {
+    if(reservation){
+      toast.info("User cannot have two reservations");
+      return;
+    }
+    if(!locationOn){
+      toast.info("Location must be turned on");
+      return;
+    }
+    const user = getUserFromLocalStorage();
+    const response = await getBestRoute([chargingTrack.travelRoute[chargingTrack.currentPositionIndex][1],chargingTrack.travelRoute[chargingTrack.currentPositionIndex][0]], user.email, selectedCar.carId);
+    if (response.status === 200) {
+      const data = await response.data;
+      setReservation(data.reservation);
+      toast.success('Found best metch');
+      initializeData();
+      const routs = polyline.decode(response.data.route);
+      const track = new ChargingTrack(routs, false, 0, selectedCar.carId);
+      localStorage.setItem('chargingTrack', JSON.stringify(track));
+      setChargingTrack(track);                                
+      return true;
+    } else {
+      toast.error(response.message || "Error occurred");
+      return false;
+    }
   };
 
   const handleLocationClick = async () =>{
@@ -265,7 +291,7 @@ const UserMap = () => {
         )}
         {selectedCar && (
           <div>
-            <h4>Selected Car</h4>
+            <h3>Selected Car</h3>
             <p>Battery: {selectedCar?.batteryPercentage?.toFixed(2)}%</p>
           </div>
         )}
@@ -400,6 +426,7 @@ const UserMap = () => {
         <MapControls
           handleLocationClick={handleLocationClick}
           toggleModal={() => setIsModalOpen(!isModalOpen)}
+          handleBestRoute={handleBestRoute}
         />
         <DateSelector
           isModalOpen={isModalOpen}

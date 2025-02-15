@@ -1,6 +1,7 @@
 const express = require('express');
 const Reservation = require('../Schemas/Reservation');
 const Station = require('../Schemas/Station');
+const Car = require('../Schemas/Car');
 const router = express.Router();
 const verifyUser = require('./JWTverification/VerifyUser');
 
@@ -36,8 +37,8 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
         return res.status(400).send({ message: 'User cannot have two reservations'});
       }
 
-      const mismatch = await Reservation.findOne({userEmail});
-      if(mismatch){
+      const car = await Car.findOne({carId});
+      if(car.chargerType !== station.chargerType){
         return res.status(400).send({ message: 'User desn\'t have a car with charger type ' + station.chargerType});
       }
 

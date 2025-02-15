@@ -9,6 +9,7 @@ const userRoutes = require('./Routes/User');
 const stationRoutes = require('./Routes/Stations');
 const reservationRoutes = require('./Routes/Reservation');
 const adminRoutes = require('./Routes/Admin');
+const navigationRoutes = require('./Routes/Navigation');
 
 const app = express();
 const port = 5000;
@@ -33,7 +34,7 @@ app.use('/user', userRoutes);
 app.use('/stations', stationRoutes);
 app.use('/reservation', reservationRoutes);
 app.use('/admin', adminRoutes);
-
+app.use('/navigation', navigationRoutes);
 
 const deleteExpiredReservations = async () => {
   try {
