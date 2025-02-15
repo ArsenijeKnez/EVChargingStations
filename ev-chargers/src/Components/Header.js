@@ -46,8 +46,8 @@ function Header() {
                 {userRole === 'Admin' && (
                     <Nav.Item>
 
-                        <Link to='/home/admin/blockUser' className={`nav-link  ${location.pathname === '/home/admin/blockUser' ? 'active link-light' : 'link-light hoverLink '}`}>
-                        <h3>Block Users</h3>
+                        <Link to='/home/admin/manageUsers' className={`nav-link  ${location.pathname === '/home/admin/manageUsers' ? 'active link-light' : 'link-light hoverLink '}`}>
+                        <h3>Users</h3>
                         </Link>
                     </Nav.Item>
 

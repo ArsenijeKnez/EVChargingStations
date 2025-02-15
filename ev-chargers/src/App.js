@@ -13,7 +13,7 @@ import ChangePassword from "./Components/ChangePassword";
 import AddVehicle from "./Components/User/AddVehicle";
 import UserMap from "./Components/User/UserMap";
 import EventLogs from "./Components/Admin/EventLogs";
-import BlockUser from "./Components/Admin/BlockUser";
+import ManageUsers from "./Components/Admin/ManageUsers";
 import Stations from "./Components/Admin/Stations";
 
 
@@ -39,7 +39,7 @@ function App() {
           <Route path='/home/addVehicle' element={<PrivateRoute allowedRoles={['User']}><AddVehicle/></PrivateRoute>}/>
           {/* <Route path='/home/admin' element={<PrivateRoute allowedRoles={['Admin','User']}><HomePage/></PrivateRoute>}> */}
             <Route path='/home/admin/EventLogs' element={<PrivateRoute allowedRoles={['Admin']}><EventLogs/></PrivateRoute>}/>
-            <Route path='/home/admin/blockUser' element={<PrivateRoute allowedRoles={['Admin']}><BlockUser/></PrivateRoute>}/>
+            <Route path='/home/admin/manageUsers' element={<PrivateRoute allowedRoles={['Admin']}><ManageUsers/></PrivateRoute>}/>
             <Route path='/home/admin/stations' element={<PrivateRoute allowedRoles={['Admin']}><Stations/></PrivateRoute>}/>
           {/* </Route> */}
         </Route>

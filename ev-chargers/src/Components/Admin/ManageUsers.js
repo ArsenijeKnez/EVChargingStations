@@ -1,9 +1,12 @@
 import {GetUsers, UnBlockUser} from "../../Services/AdminService";
 import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
+import EditUser from './EditUser';
 
-function BlockUser(){
+function ManageUsers(){
     const [users, setUsers] = useState([]);
+    const [editUser, setEditUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchUsers = async () => {
       try {
@@ -42,6 +45,15 @@ function BlockUser(){
           }
     };
 
+    const onEditUser = async(user)=>{
+      setEditUser(user); 
+      setIsModalOpen(true);
+  };
+
+  const handleEditUser = (user) =>{
+    console.log(user);
+  };
+
     return (
       <div className="container mt-5">
         <div className="row justify-content-center">
@@ -66,6 +78,9 @@ function BlockUser(){
           <button onClick={() => onUnBlockUser(user.userId)}>
             {user.blocked ? "Unblock" : "Block"}
           </button>
+          <button onClick={() => onEditUser(user)}>
+            Edit
+          </button>
         </td>
       </tr>
     ))}
@@ -73,7 +88,9 @@ function BlockUser(){
 </table>
 </div>
         </div>
+        <EditUser user={editUser}  handleEditUser={handleEditUser}   toggleModal={() => setIsModalOpen(!isModalOpen)}
+          isModalOpen = {isModalOpen}/>
         </div>
     )
 }
-export default BlockUser;
+export default ManageUsers;
