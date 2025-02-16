@@ -1,4 +1,4 @@
-import {GetUsers, UnBlockUser} from "../../Services/AdminService";
+import {GetUsers, UnBlockUser, EditUserData} from "../../Services/AdminService";
 import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import EditUser from './EditUser';
@@ -50,8 +50,14 @@ function ManageUsers(){
       setIsModalOpen(true);
   };
 
-  const handleEditUser = (user) =>{
-    console.log(user);
+  const handleEditUser = async (user) =>{
+    const response = await EditUserData(user);
+    if(response.status === 200){
+      toast.success(response.data?.message || "User edited");
+    }
+    else{
+      toast.error(response.data?.message || "Faied to edit user");
+    }
   };
 
     return (

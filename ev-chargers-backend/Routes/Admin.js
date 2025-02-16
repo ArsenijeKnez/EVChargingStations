@@ -62,4 +62,39 @@ router.post('/unBlockUser', verifyAdmin, async (req, res) => {
   }
 });
 
+router.put('/editUser', verifyAdmin, async (req, res) => {
+  try {
+    const { userId, name, lastName, email, type } = req.body;
+
+    if (!userId || !name || !lastName || !email || !type) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if(user.email !== email){
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email is already registered' });
+      }
+    }
+
+    user.name = name;
+    user.lastName = lastName;
+    user.email = email;
+    user.type = type;
+
+    await user.save();
+
+    res.status(200).json({
+      message: 'User sucessfully edited',
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+});
+
 module.exports = router;

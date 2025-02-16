@@ -1,5 +1,3 @@
-import axios from 'axios';
-//import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import API from './RequestHeader';
@@ -37,6 +35,14 @@ const handleApiError = (error) => {
   export const UnBlockUser = async (data) => {
     try {
       return await API.post('/admin/unBlockUser', data);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  };
+
+  export const EditUserData = async (data) => {
+    try {
+      return await API.put('/admin/editUser', data);
     } catch (error) {
       return handleApiError(error);
     }

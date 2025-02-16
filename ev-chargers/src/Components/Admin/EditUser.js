@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const EditUser = ({ user, handleEditUser, toggleModal, isModalOpen }) => {
     const [editedUser, setEditedUser] = useState({ ...user });
     const handleChange = (e) => {
-        setEditedUser({ ...editedUser, [e.target.name]: e.target.value });
-      };
+      setEditedUser((prev) => ({
+          ...prev, 
+          [e.target.name]: e.target.value
+      }));
+  };
+
+  useEffect(() => {
+    if (isModalOpen) {
+        setEditedUser({ ...user }); 
+    }
+}, [isModalOpen, user]);
+
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleEditUser(editedUser);
+    handleEditUser({ ...user, ...editedUser });
     toggleModal();
   };
   return (
