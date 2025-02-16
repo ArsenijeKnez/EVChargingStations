@@ -97,4 +97,22 @@ router.put('/editUser', verifyAdmin, async (req, res) => {
   }
 });
 
+
+router.delete('/deleteUser/:userId', verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findOneAndDelete({ userId });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({
+      message: 'User deleted',
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+});
+
 module.exports = router;

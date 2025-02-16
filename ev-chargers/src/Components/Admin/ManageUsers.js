@@ -1,4 +1,4 @@
-import {GetUsers, UnBlockUser, EditUserData} from "../../Services/AdminService";
+import {GetUsers, UnBlockUser, EditUserData, DeleteUser} from "../../Services/AdminService";
 import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import EditUser from './EditUser';
@@ -56,7 +56,18 @@ function ManageUsers(){
       toast.success(response.data?.message || "User edited");
     }
     else{
-      toast.error(response.data?.message || "Faied to edit user");
+      toast.error(response.error|| "Faied to edit user");
+    }
+  };
+
+  const onDeleteUser = async (userId) =>{
+    const response = await DeleteUser(userId);
+    if(response.status === 200){
+      toast.success(response.data?.message || "User deleted");
+      fetchUsers();
+    }
+    else{
+      toast.error(response.error || "Faied to delete user");
     }
   };
 
@@ -80,14 +91,26 @@ function ManageUsers(){
         <td>{user.name}</td>
         <td>{user.lastName}</td>
         <td>{user.email}</td>
-        <td>
-          <button onClick={() => onUnBlockUser(user.userId)}>
-            {user.blocked ? "Unblock" : "Block"}
-          </button>
-          <button onClick={() => onEditUser(user)}>
-            Edit
-          </button>
-        </td>
+        <td style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+        <button 
+          onClick={() => onEditUser(user)}
+        >
+          Edit
+        </button>
+        <button 
+          style={{ backgroundColor: user.blocked ? "#4CAF50" : "#FF5722" }}
+          onClick={() => onUnBlockUser(user.userId)}
+        >
+          {user.blocked ? "Unblock" : "Block"}
+        </button>
+          
+        <button 
+          style={{ backgroundColor: "#f44336" }}
+          onClick={() => onDeleteUser(user.userId)}
+        >
+          Delete
+        </button>
+      </td>
       </tr>
     ))}
   </tbody>

@@ -47,3 +47,12 @@ const handleApiError = (error) => {
       return handleApiError(error);
     }
   };
+
+  export const DeleteUser = async (userId) => {
+    try {
+      return await API.delete(`/admin/deleteUser/${userId}`);
+    } catch (error) {
+      return handleApiError(error);
+    }
+  };
+
