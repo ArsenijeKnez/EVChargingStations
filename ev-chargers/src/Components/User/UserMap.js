@@ -36,8 +36,8 @@ const UserMap = () => {
       toast.success('Reserved station');
       return true;
     } else {
-      const errorMessage = await response.data.message;
-      toast.error(errorMessage);
+      const errorMessage = await response.message;
+      toast.error(errorMessage || "Not reserved for this time");
       return false;
     }
   };
@@ -64,6 +64,10 @@ const UserMap = () => {
   const handleReserve = async (station) => {
     if(reservation){
       toast.info("User cannot have two reservations");
+      return;
+    }
+    if(!selectedCar){
+      toast.info("Car is not selected");
       return;
     }
     await postReserve(station);
@@ -193,9 +197,11 @@ const UserMap = () => {
             const result = await ActivateReservation({ Email: user.email });
             if (result.status === 200) {
               setIsCharging(true);
-            } else if (result.data?.message === "Reservation not found") {
+              return;
+            } else if (result.status === 404) {
               setReservation(null);
             }
+            toast.error(result.message || "Not reserved for this time");
           } catch (error) {
             console.error("Error activating reservation:", error);
           }

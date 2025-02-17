@@ -1,28 +1,22 @@
 import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-const DateSelector = ({
-  isModalOpen,
-  setIsModalOpen,
-  setReservationDateTime,
-}) => {
-  const [selectedTimeStart, setSelectedTimeStart] = useState("");
-  const [selectedTimeEnd, setSelectedTimeEnd] = useState("");
-  const [selectedDateStart, setSelectedDateStart] = useState("");
-  const [selectedDateEnd, setSelectedDateEnd] = useState("");
+const DateSelector = ({ isModalOpen, setIsModalOpen, setReservationDateTime }) => {
+  const [startDateTime, setStartDateTime] = useState(null);
+  const [endDateTime, setEndDateTime] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const closeModal = () => setIsModalOpen(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const startDateTime = new Date(`${selectedDateStart}T${selectedTimeStart}`);
-    const endDateTime = new Date(`${selectedDateEnd}T${selectedTimeEnd}`);
-
-    if (!selectedDateStart || !selectedTimeStart || !selectedDateEnd || !selectedTimeEnd) {
+    
+    if (!startDateTime || !endDateTime) {
       setErrorMessage("All fields are required.");
       return;
     }
-
+    
     if (startDateTime >= endDateTime) {
       setErrorMessage("Start date and time must be before end date and time.");
       return;
@@ -42,50 +36,28 @@ const DateSelector = ({
             {errorMessage && <p style={styles.error}>{errorMessage}</p>}
             <form onSubmit={handleSubmit}>
               <div style={styles.inputGroup}>
-                <label htmlFor="datestart">Select Start Date:</label><br />
-                <input
-                  type="date"
-                  id="datestart"
-                  value={selectedDateStart}
-                  onChange={(e) => setSelectedDateStart(e.target.value)}
-                  required
-                />
-                <label htmlFor="timestart">Select Start Time:</label><br />
-                <input
-                  type="time"
-                  id="timestart"
-                  value={selectedTimeStart}
-                  onChange={(e) => setSelectedTimeStart(e.target.value)}
-                  required
+                <label>Select Start Date & Time:</label>
+                <DatePicker
+                  selected={startDateTime}
+                  onChange={(date) => setStartDateTime(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  placeholderText="Select start date and time"
                 />
               </div>
               <div style={styles.inputGroup}>
-                <label htmlFor="dateend">Select End Date:</label><br />
-                <input
-                  type="date"
-                  id="dateend"
-                  value={selectedDateEnd}
-                  onChange={(e) => setSelectedDateEnd(e.target.value)}
-                  required
-                />
-                <label htmlFor="timeend">Select End Time:</label><br />
-                <input
-                  type="time"
-                  id="timeend"
-                  value={selectedTimeEnd}
-                  onChange={(e) => setSelectedTimeEnd(e.target.value)}
-                  required
+                <label>Select End Date & Time:</label>
+                <DatePicker
+                  selected={endDateTime}
+                  onChange={(date) => setEndDateTime(date)}
+                  showTimeSelect
+                  dateFormat="Pp"
+                  placeholderText="Select end date and time"
                 />
               </div>
               <div style={styles.buttonGroup}>
                 <button type="submit" style={styles.submitButton}>Apply</button>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  style={styles.cancelButton}
-                >
-                  Cancel
-                </button>
+                <button type="button" onClick={closeModal} style={styles.cancelButton}>Cancel</button>
               </div>
             </form>
           </div>

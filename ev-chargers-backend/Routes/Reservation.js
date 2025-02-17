@@ -120,6 +120,16 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
       if (!station) {
         return res.status(404).send({ message: 'Station not found' });
       }
+
+      if(reservation.end <= Date.now()){
+        Reservation.deleteOne(reservation);
+        return res.status(404).send({ message: 'Reservation ended' });
+      }
+
+      if(reservation.start >= Date.now()){
+        return res.status(400).send({ message: 'Reservation not started yet' });
+      }
+
       station.currentUserInfo = userEmail;
       station.chargerAvailability = "Occupied";
       await station.save();

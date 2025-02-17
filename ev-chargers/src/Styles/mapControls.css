@@ -22,10 +22,6 @@
     height: 41px;
   }
   
-  .map-button.large img {
-    width: 58px;
-    height: 41px;
-  }
   
   .map-button:hover {
     background-color: rgba(40, 167, 69, 0.2);
@@ -37,9 +33,8 @@
   }
   
   .reservation-text {
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
+    font-size: 18px;
+    font-weight: 440 !important;
     white-space: nowrap;
   }
   
