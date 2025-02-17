@@ -28,7 +28,7 @@ function App() {
         <Routes>
         <Route path='/' element={<PrivateRoute allowedRoles={['Guest']}><GuestPage/></PrivateRoute>}>
         <Route path='/' element={<PrivateRoute allowedRoles={['Guest']}><Map/></PrivateRoute>}/>
-        <Route path='/login' element={<PrivateRoute allowedRoles={['Guest']}><Login/></PrivateRoute>}/>
+        <Route path='/login' element={<Login/>}/>
         <Route path='/register' element={<PrivateRoute allowedRoles={['Guest']}><Register/></PrivateRoute>}/>
         </Route>
         <Route path='/unauthorized' element= {<Unauthorized/>}/>

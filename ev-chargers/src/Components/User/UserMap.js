@@ -427,6 +427,8 @@ const UserMap = () => {
           handleLocationClick={handleLocationClick}
           toggleModal={() => setIsModalOpen(!isModalOpen)}
           handleBestRoute={handleBestRoute}
+          reservationDateTime = {reservationDateTime}
+          locationOn = {locationOn}
         />
         <DateSelector
           isModalOpen={isModalOpen}

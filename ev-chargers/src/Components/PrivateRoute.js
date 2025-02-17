@@ -5,7 +5,8 @@ import { getUserFromLocalStorage, User} from '../Model/User';
 export default function PrivateRoute({ children, allowedRoles }) {
     const location = useLocation();
     const decodedToken = JSON.parse(localStorage.getItem('token'));
-    if (!decodedToken) {
+
+    if (!decodedToken || !decodedToken.exp || decodedToken.exp * 1000 < Date.now()) {
         if(allowedRoles.includes("Guest"))
             return children;
         return <Navigate to='/login' />

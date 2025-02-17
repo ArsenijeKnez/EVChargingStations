@@ -1,66 +1,40 @@
+import React from "react";
 import location from "../../../Images/Location.png";
 import calendar from "../../../Images/Calendar.png";
-import lookup from "../../../Images/Lookup.png"
+import lookup from "../../../Images/Lookup.png";
 
-const MapControls = ({ handleLocationClick, toggleModal, handleBestRoute }) => (
-    <>
-      <button
-        title="Your Location"
-        style={{
-          position: "absolute",
-          zIndex: 1000,
-          top: "60px",
-          right: "10px",
-          backgroundColor: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-        onClick={handleLocationClick}
-      >
-        <img
-          src={location}
-          alt="Location button"
-          style={{ width: "58px", height: "41px" }}
-        />
-      </button>
-      <button
-        title="Lookup reservations"
-        style={{
-          position: "absolute",
-          zIndex: 1000,
-          top: "60px",
-          right: "80px",
-          backgroundColor: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-        onClick={toggleModal}
-      >
-        <img
-          src={calendar}
-          alt="Calendar button"
-          style={{ width: "41px", height: "41px" }}
-        />
-      </button>
-      <button
-        title="Find nearest charger"
-        style={{
-          position: "absolute",
-          zIndex: 1000,
-          top: "60px",
-          right: "140px",
-          backgroundColor: "transparent",
-          border: "none",
-          cursor: "pointer",
-        }}
-        onClick={handleBestRoute}
-      >
-        <img
-          src={lookup}
-          alt="Best charger"
-          style={{ width: "41px", height: "41px" }}
-        />
-      </button>
-    </>
-  );
-  export default MapControls;
+const MapControls = ({ handleLocationClick, toggleModal, handleBestRoute, reservationDateTime, locationOn }) => (
+  <div className="map-controls">
+    <button
+      title="Your Location"
+      className={`map-button large ${locationOn ? "active" : ""}`}
+      onClick={handleLocationClick}
+    >
+      <img src={location} alt="Location button" />
+    </button>
+
+    <button
+      title="Lookup reservations"
+      className={`map-button ${reservationDateTime.length === 2 ? "active" : ""}`}
+      onClick={toggleModal}
+    >
+      <img src={calendar} alt="Calendar button" />
+    </button>
+
+    <button
+      title="Find nearest charger"
+      className="map-button"
+      onClick={handleBestRoute}
+    >
+      <img src={lookup} alt="Best charger" />
+    </button>
+
+    {reservationDateTime.length === 2 && (
+      <h4 className="reservation-text">
+        Looking from {reservationDateTime[0]} to {reservationDateTime[1]}
+      </h4>
+    )}
+  </div>
+);
+
+export default MapControls;

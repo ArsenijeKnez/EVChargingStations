@@ -14,15 +14,15 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
 
     if(!start || !end){
       start = Date.now();
-      end = Date.now() + 600000; 
+      end = Date.now() + 600000; //10 min
     }
 
     start = new Date(start);
     end = new Date(end);
   
-    const maxDuration = 12 * 60 * 60 * 1000;
+    const maxDuration = 2 * 60 * 60 * 1000;
     if (end - start > maxDuration) {
-      return res.status(400).send({ message: 'Reservation period cannot exceed 12 hours' });
+      return res.status(400).send({ message: 'Reservation period cannot exceed 2 hours' });
     }
   
   
