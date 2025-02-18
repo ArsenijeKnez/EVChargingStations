@@ -5,6 +5,7 @@ const Car = require('../Schemas/Car');
 const axios = require('axios');
 const router = express.Router();
 const verifyUser = require('./JWTverification/VerifyUser');
+const EventLog = require('../Schemas/EventLog');
 
   
   router.get('/route', verifyUser, async (req, res) => {
@@ -102,6 +103,12 @@ const verifyUser = require('./JWTverification/VerifyUser');
           });
           await newReservation.save();
         const encodedGeometry = response.data.routes[0].geometry;
+        await EventLog.create({
+          description: `Reservation created: User ${userEmail} reserved Station ${nearestStation.stationId} from ${startTime} to ${endTime}`,
+          eventType: 'reservation',
+          userId: req.user.id,
+          email: req.user.email
+        });
         res.status(200).json({route: encodedGeometry, stationId: nearestStation.stationId});
       } else {
         return res.status(404).send({ message: 'Route not found'});

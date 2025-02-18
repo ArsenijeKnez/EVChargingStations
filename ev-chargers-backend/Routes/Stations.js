@@ -39,6 +39,14 @@ router.get('/', verifyAny, async (req, res) => {
         chargerAvailability, 
         coordinates,  
       });
+
+      await EventLog.create({
+        description: `Station created successfully - ${name}`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
       await newStation.save();
       res.status(201).json(newStation);
     } catch (err) {
@@ -80,6 +88,14 @@ router.get('/', verifyAny, async (req, res) => {
         return res.status(404).send({ message: 'Station not found' });
       }
       await Station.deleteOne({stationId});
+
+      await EventLog.create({
+        description: `Station with ID ${stationId} deleted successfully`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
       res.status(200).send({ message: 'Station deleted successfully' });
     } catch (err) {
       console.error('Error deleting station:', err);

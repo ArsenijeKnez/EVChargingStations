@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../Schemas/User');
 const Car = require('../Schemas/Car');
+const EventLog = require('../Schemas/EventLog');
 const router = express.Router();
 const verifyAny = require('./JWTverification/VerifyAny');
 const verifyUser = require('./JWTverification/VerifyUser');
@@ -29,6 +30,13 @@ router.put('/updateProfile', verifyAny, async (req, res) => {
     user.lastName = lastName;
     user.email = email;
     await user.save();
+
+    await EventLog.create({
+      description: `User profile updated successfully - ${name} ${lastName}`,
+      eventType: 'info',
+      userId: req.user.id,
+      email: req.user.email
+    });
 
     res.status(200).json({
       message: 'User profile updated successfully',
@@ -65,6 +73,13 @@ router.put('/changePassword', verifyAny, async (req, res) => {
   
       user.password = newPassword;
       await user.save();
+
+      await EventLog.create({
+        description: `Password changed successfully for user ${email}`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
   
       res.status(200).json({
         message: 'User profile updated successfully'
@@ -104,11 +119,24 @@ router.put('/changePassword', verifyAny, async (req, res) => {
       user.cars.push(newCar.carId);
       await user.save();
 
+      await EventLog.create({
+        description: `Car added successfully for user ${userId} - Model: ${model}`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
       res.status(201).json({
         message: 'Car added successfully',
         car: newCar
       });
     } catch (err) {
+      await EventLog.create({
+        description: `Error adding car - ${err.message}`,
+        eventType: 'error',
+        userId: req.user.id,
+        email: req.user.email
+      });
       console.error('Error adding car:', err);
       res.status(500).json({ message: 'Server error' });
     }
@@ -130,11 +158,26 @@ router.put('/changePassword', verifyAny, async (req, res) => {
       
       await Car.deleteOne({ carId });
 
+      await EventLog.create({
+        description: `Car with ID ${carId} removed successfully`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
       res.status(200).json({
         message: 'Car removed successfully',
       });
     } catch (err) {
       console.error('Error removing car:', err);
+
+      await EventLog.create({
+        description: `Error removing car - ${err.message}`,
+        eventType: 'error',
+        userId: req.user.id,
+        email: req.user.email
+      });
+      
       res.status(500).json({ message: 'Server error' });
     }
   });

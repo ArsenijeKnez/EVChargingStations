@@ -7,6 +7,7 @@ const eventLogSchema = new mongoose.Schema({
     eventType: { type: String, enum: ['reservation', 'error', 'info'], required: true },
     eventDate: { type: Date, default: Date.now },
     userId: { type: Number, required: true },
+    email: {type: String, required: true}
   });
 
   eventLogSchema.plugin(AutoIncrement, { inc_field: 'logId' })

@@ -6,6 +6,7 @@ const EventLogs = () => {
   const [filters, setFilters] = useState({
     eventType: '',
     userId: '',
+    email: '',
     startDate: '',
     endDate: '',
   });
@@ -57,21 +58,20 @@ const EventLogs = () => {
       <table>
         <thead>
           <tr>
-            <th>Log ID</th>
+           
             <th>Description</th>
             <th>Event Type</th>
-            <th>Event Date</th>
-            <th>User ID</th>
+            <th>Event Date</th>    
+            <th>Email</th>
           </tr>
         </thead>
         <tbody>
           {logs.map((log) => (
             <tr key={log.logId}>
-              <td>{log.logId}</td>
-              <td>{log.description}</td>
+              <td style={{maxWidth: 300}}>{log.description}</td>
               <td>{log.eventType}</td>
               <td>{new Date(log.eventDate).toLocaleString()}</td>
-              <td>{log.userId}</td>
+              <td>{log.email}</td>
             </tr>
           ))}
         </tbody>
@@ -98,6 +98,13 @@ const EventLogs = () => {
           name="userId"
           placeholder="User ID"
           value={filters.userId}
+          onChange={handleFilterChange}
+        />
+        <input
+          type="text"
+          name="email"
+          placeholder="Email"
+          value={filters.email}
           onChange={handleFilterChange}
         />
         <input

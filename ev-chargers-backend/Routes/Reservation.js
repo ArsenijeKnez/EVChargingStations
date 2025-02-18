@@ -4,6 +4,7 @@ const Station = require('../Schemas/Station');
 const Car = require('../Schemas/Car');
 const router = express.Router();
 const verifyUser = require('./JWTverification/VerifyUser');
+const EventLog = require('../Schemas/EventLog');
 
 router.post('/reserveStation', verifyUser, async (req, res) => {
     let { Email: userEmail , CarID: carId, StationID: stationId, Start: start, End: end } = req.body;
@@ -12,10 +13,9 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
       return res.status(400).send({ message: 'All fields are required'});
     }
 
-    if(!start || !end){
-      start = Date.now();
-      end = Date.now() + 600000; //10 min
-    }
+    if (!start) start = Date.now();
+    if (!end) end = start + 600000; // 10 min
+
 
     start = new Date(start);
     end = new Date(end);
@@ -56,10 +56,18 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
       });
       await newReservation.save();
 
+      await EventLog.create({
+        description: `Reservation created: User ${userEmail} reserved Station ${stationId} from ${start} to ${end}`,
+        eventType: 'reservation',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
       res.status(201).json({
         reservation: newReservation,
         stationChargerPower: station.chargerPower, 
       });
+
     } catch (err) {
       console.error('Error saving reservation:', err);
       res.status(500).send({ message: 'Error saving reservation' });
@@ -132,9 +140,17 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
 
       station.currentUserInfo = userEmail;
       station.chargerAvailability = "Occupied";
-      await station.save();
+      await station.save();    
+      
+      await EventLog.create({
+        description: `Reservation activated: User ${userEmail} activated Station ${stationId}`,
+        eventType: 'reservation',
+        userId: req.user.id,
+        email: req.user.email
+      });
 
       res.status(200).send({ message: 'Reservation activated' });
+
     } catch (err) {
       console.error('Error activating reservation:', err);
       res.status(500).send({ message: 'Error activating reservation' });
@@ -177,10 +193,18 @@ router.post('/reserveStation', verifyUser, async (req, res) => {
       }
   
       await Reservation.deleteOne({ userEmail });
+      
+      await EventLog.create({
+        description: `Reservation ended: User ${userEmail} ended reservation at Station ${stationId}`,
+        eventType: 'reservation',
+        userId: req.user.id,
+        email: req.user.email
+      });
   
       res.status(200).json({
         message: 'Reservation ended successfully',
       });
+
     } catch (err) {
       console.error('Error ending and deleting reservation:', err);
       res.status(500).send({ message: 'Error ending and deleting reservation' });

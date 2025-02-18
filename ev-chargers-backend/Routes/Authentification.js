@@ -39,6 +39,7 @@ router.post('/login', async (req, res) => {
         description: 'User logged in successfully',
         eventType: 'info',
         userId: user.userId,
+        email: user.email
       });
   
       res.status(200).json({
@@ -98,6 +99,7 @@ router.post('/login', async (req, res) => {
         description: 'User registered successfully',
         eventType: 'info',
         userId: newUser.userId,
+        email: newUser.email
       });
 
       res.status(201).json({

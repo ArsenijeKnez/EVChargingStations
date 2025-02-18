@@ -14,11 +14,12 @@ router.get('/logs', verifyAdmin, async (req, res) => {
 });
 
 router.post('/logs/filter', verifyAdmin, async (req, res) => {
-  const { eventType, userId, startDate, endDate } = req.body;
+  const { eventType, userId, startDate, endDate, email } = req.body;
   
   const filter = {};
   if (eventType) filter.eventType = eventType;
   if (userId) filter.userId = Number(userId);
+  if (email) filter.email = email;
   if (startDate || endDate) {
     filter.eventDate = {};
     if (startDate) filter.eventDate.$gte = new Date(startDate);
@@ -54,9 +55,17 @@ router.post('/unBlockUser', verifyAdmin, async (req, res) => {
     user.blocked = !user.blocked;
     await user.save();
 
+    await EventLog.create({
+      description: `Admin ${req.user.email} ${user.blocked ? 'blocked' : 'unblocked'} user ${user.email}`,
+      eventType: 'info',
+      userId: req.user.id,
+      email: req.user.email
+    });
+
     res.status(200).json({
       message: user.blocked ? 'User blocked' : 'User unblocked',
     });
+
   } catch (error) {
     res.status(500).json({ error: 'Failed to update user status' });
   }
@@ -75,7 +84,7 @@ router.put('/editUser', verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    if(user.email !== email){
+    if (user.email !== email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ message: 'Email is already registered' });
@@ -89,14 +98,20 @@ router.put('/editUser', verifyAdmin, async (req, res) => {
 
     await user.save();
 
+    await EventLog.create({
+      description: `Admin ${req.user.email} edited user ${user.email}`,
+      eventType: 'info',
+      userId: req.user.id,
+      email: req.user.email
+    });
+
     res.status(200).json({
-      message: 'User sucessfully edited',
+      message: 'User successfully edited',
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update user' });
   }
 });
-
 
 router.delete('/deleteUser/:userId', verifyAdmin, async (req, res) => {
   try {
@@ -107,6 +122,13 @@ router.delete('/deleteUser/:userId', verifyAdmin, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    await EventLog.create({
+      description: `Admin ${req.user.email} deleted user ${user.email}`,
+      eventType: 'info',
+      userId: req.user.id,
+      email: req.user.email
+    });
+
     res.status(200).json({
       message: 'User deleted',
     });
@@ -114,5 +136,6 @@ router.delete('/deleteUser/:userId', verifyAdmin, async (req, res) => {
     res.status(500).json({ error: 'Failed to delete user' });
   }
 });
+
 
 module.exports = router;
