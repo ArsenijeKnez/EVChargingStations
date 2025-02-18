@@ -53,3 +53,12 @@ export const ChangeAvailability = async (data) => {
     return handleApiError(error);
   }
 };
+
+export const FaultReport = async (data) => {
+  try {
+    const response = await API.post('/stations/reportFault', data);
+    return response;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};

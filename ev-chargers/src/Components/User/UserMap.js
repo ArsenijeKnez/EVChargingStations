@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DateSelector from "./UserMapComponents/DateSelection";
 import MapControls from "./UserMapComponents/MapControls";
+import ReportFault from "./UserMapComponents/ReportFault";
 import polyline from "@mapbox/polyline";
 
 const UserMap = () => {
@@ -25,6 +26,7 @@ const UserMap = () => {
   const [reservationDateTime, setReservationDateTime] = useState([]);  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCharging, setIsCharging] = useState(false);
+  const [faultedStation, setFaultedStation] = useState(null);
 
   const postReserve = async (station) => {
     const user = getUserFromLocalStorage();
@@ -402,8 +404,9 @@ const UserMap = () => {
                             Charge
                           </button>
                     )}
-
-
+                    <button onClick={() => setFaultedStation(station)}>
+                        Report Fault
+                      </button>
                   </div>
                 </Popup>
               </Marker>
@@ -441,6 +444,7 @@ const UserMap = () => {
           setIsModalOpen={setIsModalOpen}
           setReservationDateTime={setReservationDateTime}
         />
+        <ReportFault faultedStation={faultedStation} setFaultedStation={setFaultedStation}/>
       </div>
     </div>
   );  

@@ -69,9 +69,9 @@ const EventLogs = () => {
           {logs.map((log) => (
             <tr key={log.logId}>
               <td style={{maxWidth: 300}}>{log.description}</td>
-              <td>{log.eventType}</td>
-              <td>{new Date(log.eventDate).toLocaleString()}</td>
-              <td>{log.email}</td>
+              <td style={{maxWidth: 300}}>{log.eventType}</td>
+              <td style={{maxWidth: 300}}>{new Date(log.eventDate).toLocaleString()}</td>
+              <td style={{maxWidth: 300}}>{log.email}</td>
             </tr>
           ))}
         </tbody>
