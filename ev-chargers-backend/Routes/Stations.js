@@ -1,8 +1,12 @@
 const express = require('express');
 const Station = require('../Schemas/Station');
+const Fault = require('../Schemas/Fault');
+const User = require('../Schemas/User');
+const EventLog = require('../Schemas/EventLog');
 const router = express.Router();
 const verifyAny = require('./JWTverification/VerifyAny');
 const verifyAdmin = require('./JWTverification/VerifyAdmin');
+const verifyUser = require('./JWTverification/VerifyUser');
 
 router.get('/', verifyAny, async (req, res) => {
     try {
@@ -39,6 +43,7 @@ router.get('/', verifyAny, async (req, res) => {
         chargerAvailability, 
         coordinates,  
       });
+      await newStation.save();
 
       await EventLog.create({
         description: `Station created successfully - ${name}`,
@@ -46,36 +51,11 @@ router.get('/', verifyAny, async (req, res) => {
         userId: req.user.id,
         email: req.user.email
       });
-
-      await newStation.save();
+      
       res.status(201).json(newStation);
     } catch (err) {
       console.error('Error saving station:', err);
       res.status(500).send({message:'Error saving station'});
-    }
-  });
-  
-  
-  router.post('/post/bulk', verifyAdmin, async (req, res) => {
-    const stations = req.body;
-  
-    if (!Array.isArray(stations) || stations.length === 0) {
-      return res.status(400).send('Request body must be an array of stations');
-    }
-  
-    for (let station of stations) {
-      const { name, chargerType, chargerPower, chargerAvailability, coordinates } = station;
-      if (!name || !chargerType || !chargerPower || !chargerAvailability || !coordinates || !coordinates.lat || !coordinates.lng) {
-        return res.status(400).send('All fields (name, chargerType, chargerPower, chargerAvailability, coordinates) are required');
-      }
-    }
-  
-    try {
-      const savedStations = await Station.insertMany(stations);
-      res.status(201).json(savedStations);
-    } catch (err) {
-      console.error('Error saving bulk stations:', err);
-      res.status(500).send('Error saving stations');
     }
   });
 
@@ -128,6 +108,54 @@ router.get('/', verifyAny, async (req, res) => {
     } catch (err) {
       console.error('Error changing station availability:', err);
       res.status(500).send('Error changing station availability');
+    }
+  });
+
+  router.post('/reportFault', verifyUser, async (req, res) => {
+    const { stationId, description, email, stationName } = req.body;
+
+    if (!stationId || !description || !email) {
+      return res.status(400).send('Missing request parameters');
+    }
+    try {
+
+      const station = await Station.findOne({ stationId });
+  
+      if (!station) {
+        return res.status(404).send({ message: 'Station not found' });
+      }
+
+      const user = await User.findOne({email});
+      if(!user){
+        return res.status(404).send({ message: 'User not found'});
+      }
+
+      const newFault = new Fault({ 
+        description,
+        email,
+        stationName,
+        stationId
+      });
+      console.log(newFault);
+      await newFault.save();
+
+      await EventLog.create({
+        description: `User with email ${email} reported fault in station with ID ${stationId}`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+
+      res.status(201).json({message: 'Fault reported.'});
+    } catch (err) {
+      console.error('Error reporting fault:', err);
+      await EventLog.create({
+        description: `Error reporting fault in station with ID ${stationId}`,
+        eventType: 'info',
+        userId: req.user.id,
+        email: req.user.email
+      });
+      res.status(500).send('Error reporting fault');
     }
   });
   
