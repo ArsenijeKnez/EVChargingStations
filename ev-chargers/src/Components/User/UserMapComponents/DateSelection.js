@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const DateSelector = ({ isModalOpen, setIsModalOpen, setReservationDateTime }) => {
+const DateSelector = ({
+  isModalOpen,
+  setIsModalOpen,
+  setReservationDateTime,
+}) => {
   const [startDateTime, setStartDateTime] = useState(null);
   const [endDateTime, setEndDateTime] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -11,19 +15,22 @@ const DateSelector = ({ isModalOpen, setIsModalOpen, setReservationDateTime }) =
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!startDateTime || !endDateTime) {
       setErrorMessage("All fields are required.");
       return;
     }
-    
+
     if (startDateTime >= endDateTime) {
       setErrorMessage("Start date and time must be before end date and time.");
       return;
     }
     setErrorMessage("");
 
-    setReservationDateTime([startDateTime.toISOString(), endDateTime.toISOString()]);
+    setReservationDateTime([
+      startDateTime.toISOString(),
+      endDateTime.toISOString(),
+    ]);
     closeModal();
   };
 
@@ -56,8 +63,16 @@ const DateSelector = ({ isModalOpen, setIsModalOpen, setReservationDateTime }) =
                 />
               </div>
               <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.submitButton}>Apply</button>
-                <button type="button" onClick={closeModal} style={styles.cancelButton}>Cancel</button>
+                <button type="submit" style={styles.submitButton}>
+                  Apply
+                </button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

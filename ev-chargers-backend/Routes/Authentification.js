@@ -1,114 +1,113 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../Schemas/User');
-const EventLog = require('../Schemas/EventLog');
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../Schemas/User");
+const EventLog = require("../Schemas/EventLog");
 const router = express.Router();
 
+router.post("/login", async (req, res) => {
+  try {
+    const { Email: email, Password: password } = req.body;
 
-router.post('/login', async (req, res) => {
-    try {
-      const { Email: email, Password: password } = req.body;
-  
-      if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-      }
-  
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        await EventLog.create({
-            description: 'Invalid login attempt',
-            eventType: 'error',
-            userId: user.userId,
-        });
-        return res.status(400).json({ message: 'Invalid credentials' });
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
-  
-      const token = jwt.sign(
-        { id: user.userId, email: user.email, user_role: user.type },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' }
-      );
 
-      const o = await EventLog.create({
-        description: 'User logged in successfully',
-        eventType: 'info',
-        userId: user.userId,
-        email: user.email
-      });
-  
-      res.status(200).json({
-        message: 'Login successful',
-        token,
-        user: {
-          id: user.userId,
-          name: user.name,
-          lastName: user.lastName,
-          email: user.email,
-          type: user.type,
-        },
-      });
-    } catch (err) {
-      console.error('Error logging in user:', err);
-      res.status(500).json({ message: 'Server error' });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  });
-  
-  
-  router.post('/register', async (req, res) => {
-  
-    try {
-      const {
-        Name: name,
-        Lastname: lastName,
-        Password: password,
-        Email: email,
-        UserType: type
-      } = req.body;
-  
-      if (!name || !lastName || !password || !email || !type) {
-        return res.status(400).json({ message: 'All fields are required' });
-      }
-  
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: 'Email is already registered' });
-      }
-  
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-  
-      const newUser = new User({
-        name,
-        lastName,
-        password: hashedPassword,
-        email,
-        type,
-        cars: [],
-        blocked: false
-      });
-      
-      await newUser.save();
-      
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       await EventLog.create({
-        description: 'User registered successfully',
-        eventType: 'info',
-        userId: newUser.userId,
-        email: newUser.email
+        description: "Invalid login attempt",
+        eventType: "error",
+        userId: user.userId,
       });
-
-      res.status(201).json({
-        message: 'User registered successfully'
-      });
-    } catch (err) {
-      console.error('Error registering user:', err);
-      res.status(500).json({ message: 'Server error' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
-  });
+
+    const token = jwt.sign(
+      { id: user.userId, email: user.email, user_role: user.type },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const o = await EventLog.create({
+      description: "User logged in successfully",
+      eventType: "info",
+      userId: user.userId,
+      email: user.email,
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.userId,
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        type: user.type,
+      },
+    });
+  } catch (err) {
+    console.error("Error logging in user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/register", async (req, res) => {
+  try {
+    const {
+      Name: name,
+      Lastname: lastName,
+      Password: password,
+      Email: email,
+      UserType: type,
+    } = req.body;
+
+    if (!name || !lastName || !password || !email || !type) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already registered" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = new User({
+      name,
+      lastName,
+      password: hashedPassword,
+      email,
+      type,
+      cars: [],
+      blocked: false,
+    });
+
+    await newUser.save();
+
+    await EventLog.create({
+      description: "User registered successfully",
+      eventType: "info",
+      userId: newUser.userId,
+      email: newUser.email,
+    });
+
+    res.status(201).json({
+      message: "User registered successfully",
+    });
+  } catch (err) {
+    console.error("Error registering user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;

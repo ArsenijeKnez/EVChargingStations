@@ -1,6 +1,6 @@
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import API from './RequestHeader';
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import API from "./RequestHeader";
 
 const handleApiError = (error) => {
   const errorMessage = error.response?.data || error.message;
@@ -10,7 +10,7 @@ const handleApiError = (error) => {
 
 export const GetStations = async () => {
   try {
-    const response = await API.get('/stations/');
+    const response = await API.get("/stations/");
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -19,7 +19,7 @@ export const GetStations = async () => {
 
 export const GetStationsGuest = async () => {
   try {
-    const response = await API.get('/stations/guest');
+    const response = await API.get("/stations/guest");
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -28,7 +28,7 @@ export const GetStationsGuest = async () => {
 
 export const CreateStation = async (data) => {
   try {
-    const response = await API.post('/stations/post', data);
+    const response = await API.post("/stations/post", data);
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -38,7 +38,7 @@ export const CreateStation = async (data) => {
 export const DeleteStation = async (id) => {
   try {
     const response = await API.delete(`/stations/${id}`);
-    toast.success('Station deleted successfully');
+    toast.success("Station deleted successfully");
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -47,7 +47,7 @@ export const DeleteStation = async (id) => {
 
 export const ChangeAvailability = async (data) => {
   try {
-    const response = await API.put('/stations/put/availability', data);
+    const response = await API.put("/stations/put/availability", data);
     return response;
   } catch (error) {
     return handleApiError(error);
@@ -56,7 +56,7 @@ export const ChangeAvailability = async (data) => {
 
 export const FaultReport = async (data) => {
   try {
-    const response = await API.post('/stations/reportFault', data);
+    const response = await API.post("/stations/reportFault", data);
     return response;
   } catch (error) {
     return handleApiError(error);

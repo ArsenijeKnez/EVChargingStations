@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from "react";
-import {FaultReport} from "../../../Services/StationService"
-import {getUserFromLocalStorage} from "../../../Model/User";
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { FaultReport } from "../../../Services/StationService";
+import { getUserFromLocalStorage } from "../../../Model/User";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const ReportFault = ({ faultedStation ,setFaultedStation}) => {
+const ReportFault = ({ faultedStation, setFaultedStation }) => {
   const [description, setDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-    useEffect(() => {
-      setDescription("");
-      setErrorMessage("");
-    }, [faultedStation]);
+  useEffect(() => {
+    setDescription("");
+    setErrorMessage("");
+  }, [faultedStation]);
 
   const closeModal = () => setFaultedStation(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const length = description.trim().length
-    
+    const length = description.trim().length;
+
     if (!description || length < 10) {
       setErrorMessage("Description must have at least 10 characters.");
       return;
     }
-    
+
     if (length > 200) {
       setErrorMessage("Description cannot have more then 200 characters.");
       return;
@@ -33,12 +33,15 @@ const ReportFault = ({ faultedStation ,setFaultedStation}) => {
     const user = getUserFromLocalStorage();
     const email = user.email;
 
-    const result = await FaultReport({description, email, stationId: faultedStation.stationId, stationName: faultedStation.name})
-    if(result.status === 201){
+    const result = await FaultReport({
+      description,
+      email,
+      stationId: faultedStation.stationId,
+      stationName: faultedStation.name,
+    });
+    if (result.status === 201) {
       toast.success(result.message || "Fault Reported");
-    }
-    else
-    {
+    } else {
       toast.error(result.message || "Failed to report faut");
     }
     closeModal();
@@ -55,26 +58,37 @@ const ReportFault = ({ faultedStation ,setFaultedStation}) => {
               <div style={styles.inputGroup}>
                 <label>Fault description:</label>
                 <textarea
-  name="description"
-  value={description}
-  onChange={(e) => {
-    setDescription(e.target.value);
-    e.target.style.height = "auto"; // Reset height to recalculate
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`; // Set max height
-  }}
-  style={{
-    width: "100%",
-    minHeight: "40px",
-    maxHeight: "150px",
-    overflowY: "auto",
-    resize: "none", // Prevent manual resizing
-  }}
-  required
-/>
+                  name="description"
+                  value={description}
+                  onChange={(e) => {
+                    setDescription(e.target.value);
+                    e.target.style.height = "auto";
+                    e.target.style.height = `${Math.min(
+                      e.target.scrollHeight,
+                      150
+                    )}px`;
+                  }}
+                  style={{
+                    width: "100%",
+                    minHeight: "40px",
+                    maxHeight: "150px",
+                    overflowY: "auto",
+                    resize: "none",
+                  }}
+                  required
+                />
               </div>
               <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.submitButton}>Apply</button>
-                <button type="button" onClick={closeModal} style={styles.cancelButton}>Cancel</button>
+                <button type="submit" style={styles.submitButton}>
+                  Apply
+                </button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  style={styles.cancelButton}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from "react";
 
 const EditUser = ({ user, handleEditUser, toggleModal, isModalOpen }) => {
-    const [editedUser, setEditedUser] = useState({ ...user });
-    const handleChange = (e) => {
-      setEditedUser((prev) => ({
-          ...prev, 
-          [e.target.name]: e.target.value
-      }));
+  const [editedUser, setEditedUser] = useState({ ...user });
+  const handleChange = (e) => {
+    setEditedUser((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   useEffect(() => {
     if (isModalOpen) {
-        setEditedUser({ ...user }); 
+      setEditedUser({ ...user });
     }
-}, [isModalOpen, user]);
-
-  
+  }, [isModalOpen, user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -73,7 +71,9 @@ const EditUser = ({ user, handleEditUser, toggleModal, isModalOpen }) => {
               </div>
               <div style={styles.buttonGroup}>
                 <button type="submit">Apply</button>
-                <button type="button" onClick={toggleModal}>Cancel</button>
+                <button type="button" onClick={toggleModal}>
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -83,51 +83,49 @@ const EditUser = ({ user, handleEditUser, toggleModal, isModalOpen }) => {
   );
 };
 
-
 const styles = {
-    overlay: {
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0, 0, 0, 0.7)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-    },
-    modal: {
-      backgroundColor: "#fff",
-      borderRadius: "8px",
-      padding: "20px",
-      width: "400px",
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    },
-    inputGroup: {
-      marginBottom: "15px",
-    },
-    buttonGroup: {
-      display: "flex",
-      justifyContent: "space-between",
-    },
-    submitButton: {
-      padding: "10px 15px",
-      border: "none",
-      borderRadius: "4px",
-    },
-    cancelButton: {
-      backgroundColor: "#f44336",
-      color: "white",
-      padding: "10px 15px",
-      border: "none",
-      borderRadius: "4px",
-    },
-    error: {
-      color: "red",
-      marginBottom: "10px",
-    },
-  };
-  
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
+  },
+  modal: {
+    backgroundColor: "#fff",
+    borderRadius: "8px",
+    padding: "20px",
+    width: "400px",
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  },
+  inputGroup: {
+    marginBottom: "15px",
+  },
+  buttonGroup: {
+    display: "flex",
+    justifyContent: "space-between",
+  },
+  submitButton: {
+    padding: "10px 15px",
+    border: "none",
+    borderRadius: "4px",
+  },
+  cancelButton: {
+    backgroundColor: "#f44336",
+    color: "white",
+    padding: "10px 15px",
+    border: "none",
+    borderRadius: "4px",
+  },
+  error: {
+    color: "red",
+    marginBottom: "10px",
+  },
+};
 
 export default EditUser;

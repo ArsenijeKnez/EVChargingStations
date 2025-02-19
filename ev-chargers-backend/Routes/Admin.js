@@ -1,21 +1,21 @@
-const express = require('express');
-const EventLog = require('../Schemas/EventLog');
-const User = require('../Schemas/User');
+const express = require("express");
+const EventLog = require("../Schemas/EventLog");
+const User = require("../Schemas/User");
 const router = express.Router();
-const verifyAdmin = require('./JWTverification/VerifyAdmin');
+const verifyAdmin = require("./JWTverification/VerifyAdmin");
 
-router.get('/logs', verifyAdmin, async (req, res) => {
+router.get("/logs", verifyAdmin, async (req, res) => {
   try {
     const logs = await EventLog.find();
     res.status(200).json(logs);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch logs' });
+    res.status(500).json({ error: "Failed to fetch logs" });
   }
 });
 
-router.post('/logs/filter', verifyAdmin, async (req, res) => {
+router.post("/logs/filter", verifyAdmin, async (req, res) => {
   const { eventType, userId, startDate, endDate, email } = req.body;
-  
+
   const filter = {};
   if (eventType) filter.eventType = eventType;
   if (userId) filter.userId = Number(userId);
@@ -30,64 +30,65 @@ router.post('/logs/filter', verifyAdmin, async (req, res) => {
     const logs = await EventLog.find(filter);
     res.status(200).json(logs);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch filtered logs' });
+    res.status(500).json({ error: "Failed to fetch filtered logs" });
   }
 });
 
-router.get('/getUsers', verifyAdmin, async (req, res) => {
+router.get("/getUsers", verifyAdmin, async (req, res) => {
   try {
-    const users = await User.find({ type: 'User' });
+    const users = await User.find({ type: "User" });
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ error: "Failed to fetch users" });
   }
 });
 
-router.post('/unBlockUser', verifyAdmin, async (req, res) => {
+router.post("/unBlockUser", verifyAdmin, async (req, res) => {
   try {
     const { UserId: userId } = req.body;
 
     const user = await User.findOne({ userId });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     user.blocked = !user.blocked;
     await user.save();
 
     await EventLog.create({
-      description: `Admin ${req.user.email} ${user.blocked ? 'blocked' : 'unblocked'} user ${user.email}`,
-      eventType: 'info',
+      description: `Admin ${req.user.email} ${
+        user.blocked ? "blocked" : "unblocked"
+      } user ${user.email}`,
+      eventType: "info",
       userId: req.user.id,
-      email: req.user.email
+      email: req.user.email,
     });
 
     res.status(200).json({
-      message: user.blocked ? 'User blocked' : 'User unblocked',
+      message: user.blocked ? "User blocked" : "User unblocked",
     });
-
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user status' });
+    res.status(500).json({ error: "Failed to update user status" });
   }
 });
 
-router.put('/editUser', verifyAdmin, async (req, res) => {
+router.put("/editUser", verifyAdmin, async (req, res) => {
   try {
     const { userId, name, lastName, email, type } = req.body;
 
     if (!userId || !name || !lastName || !email || !type) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const user = await User.findOne({ userId });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (user.email !== email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
-        return res.status(400).json({ message: 'Email is already registered' });
+        return res.status(400).json({ message: "Email is already registered" });
       }
     }
 
@@ -100,42 +101,41 @@ router.put('/editUser', verifyAdmin, async (req, res) => {
 
     await EventLog.create({
       description: `Admin ${req.user.email} edited user ${user.email}`,
-      eventType: 'info',
+      eventType: "info",
       userId: req.user.id,
-      email: req.user.email
+      email: req.user.email,
     });
 
     res.status(200).json({
-      message: 'User successfully edited',
+      message: "User successfully edited",
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ error: "Failed to update user" });
   }
 });
 
-router.delete('/deleteUser/:userId', verifyAdmin, async (req, res) => {
+router.delete("/deleteUser/:userId", verifyAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
 
     const user = await User.findOneAndDelete({ userId });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     await EventLog.create({
       description: `Admin ${req.user.email} deleted user ${user.email}`,
-      eventType: 'info',
+      eventType: "info",
       userId: req.user.id,
-      email: req.user.email
+      email: req.user.email,
     });
 
     res.status(200).json({
-      message: 'User deleted',
+      message: "User deleted",
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: "Failed to delete user" });
   }
 });
-
 
 module.exports = router;

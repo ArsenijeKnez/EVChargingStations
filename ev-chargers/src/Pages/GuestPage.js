@@ -1,13 +1,12 @@
 import GuestHeader from "../Components/GuestHeader";
 import { Outlet } from "react-router-dom";
 
-function GuestPage(){
-    return (
+function GuestPage() {
+  return (
     <>
-        <GuestHeader/>
-        <Outlet/>
+      <GuestHeader />
+      <Outlet />
     </>
-
-    )
+  );
 }
 export default GuestPage;

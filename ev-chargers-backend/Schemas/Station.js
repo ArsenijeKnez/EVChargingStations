@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
+const mongoose = require("mongoose");
+const AutoIncrement = require("mongoose-sequence")(mongoose);
 
 const stationSchema = new mongoose.Schema({
   stationId: { type: Number, unique: true },
@@ -9,13 +9,13 @@ const stationSchema = new mongoose.Schema({
   chargerAvailability: { type: String, required: true },
   coordinates: {
     lat: { type: Number, required: true },
-    lng: { type: Number, required: true }
+    lng: { type: Number, required: true },
   },
-  currentUserInfo: { type: String, required: false }
+  currentUserInfo: { type: String, required: false },
 });
 
-stationSchema.plugin(AutoIncrement, { inc_field: 'stationId' })
+stationSchema.plugin(AutoIncrement, { inc_field: "stationId" });
 
-const Station = mongoose.model('stations', stationSchema);
+const Station = mongoose.model("stations", stationSchema);
 
 module.exports = Station;

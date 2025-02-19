@@ -13,12 +13,18 @@ const formatDate = (dateString) => {
   });
 };
 
-const MapControls = ({ handleLocationClick, toggleModal, handleBestRoute, reservationDateTime, locationOn }) => (
+const MapControls = ({
+  handleLocationClick,
+  toggleModal,
+  handleBestRoute,
+  reservationDateTime,
+  locationOn,
+}) => (
   <div className="map-controls">
-    
     {reservationDateTime.length === 2 && (
       <h3 className="reservation-text">
-       From {formatDate(reservationDateTime[0])} to {formatDate(reservationDateTime[1])}
+        From {formatDate(reservationDateTime[0])} to{" "}
+        {formatDate(reservationDateTime[1])}
       </h3>
     )}
     {reservationDateTime.length !== 2 && (
@@ -36,7 +42,9 @@ const MapControls = ({ handleLocationClick, toggleModal, handleBestRoute, reserv
 
     <button
       title="Lookup reservations"
-      className={`map-button ${reservationDateTime.length === 2 ? "active" : ""}`}
+      className={`map-button ${
+        reservationDateTime.length === 2 ? "active" : ""
+      }`}
       onClick={toggleModal}
     >
       <img src={calendar} alt="Calendar button" />
