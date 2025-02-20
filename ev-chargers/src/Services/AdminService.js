@@ -32,6 +32,22 @@ export const GetUsers = async () => {
   }
 };
 
+export const GetFaultsForStation = async (stationId) => {
+  try {
+    return await API.get(`/admin/faults/station/${stationId}`);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const GetStationsWithFaultCount = async () => {
+  try {
+    return await API.get(`/admin/faults/station`);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
 export const UnBlockUser = async (data) => {
   try {
     return await API.post("/admin/unBlockUser", data);
@@ -51,6 +67,14 @@ export const EditUserData = async (data) => {
 export const DeleteUser = async (userId) => {
   try {
     return await API.delete(`/admin/deleteUser/${userId}`);
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const DismissFault = async (faultId) => {
+  try {
+    return await API.delete(`/admin/dismissFault/${faultId}`);
   } catch (error) {
     return handleApiError(error);
   }

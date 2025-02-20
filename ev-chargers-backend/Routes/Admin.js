@@ -1,6 +1,8 @@
 const express = require("express");
 const EventLog = require("../Schemas/EventLog");
 const User = require("../Schemas/User");
+const Fault = require("../Schemas/Fault");
+const Station = require("../Schemas/Station");
 const router = express.Router();
 const verifyAdmin = require("./JWTverification/VerifyAdmin");
 
@@ -40,6 +42,40 @@ router.get("/getUsers", verifyAdmin, async (req, res) => {
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+router.get("/faults/station/:stationId", verifyAdmin, async (req, res) => {
+  try {
+    const { stationId } = req.params;
+    const faults = await Fault.find({ stationId });
+    res.status(200).json(faults);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch faults" });
+  }
+});
+
+router.get("/faults/station", verifyAdmin, async (req, res) => {
+  try {
+    const stations = await Station.find();
+    const faultCounts = await Fault.aggregate([
+      { $group: { _id: "$stationId", count: { $sum: 1 } } },
+    ]);
+
+    const faultMap = {};
+    faultCounts.forEach((fault) => {
+      faultMap[fault._id] = fault.count;
+    });
+
+    const stationsWithFaultCount = stations.map((station) => ({
+      ...station.toObject(),
+      faultCount: faultMap[station.stationId] || 0,
+    }));
+
+    res.status(200).json(stationsWithFaultCount);
+  } catch (error) {
+    console.error("Error fetching stations with faults:", error);
+    res.status(500).json({ error: "Failed to fetch stations with faults" });
   }
 });
 
@@ -135,6 +171,33 @@ router.delete("/deleteUser/:userId", verifyAdmin, async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+router.delete("/dismissFault/:faultId", verifyAdmin, async (req, res) => {
+  try {
+    const { faultId } = req.params;
+    if (!faultId) {
+      return res.status(404).json({ error: "Fault id is missing" });
+    }
+
+    const fault = await Fault.findOneAndDelete({ faultId });
+    if (!fault) {
+      return res.status(404).json({ error: "Fault not found" });
+    }
+
+    await EventLog.create({
+      description: `Admin ${req.user.email} dismissed fault ${fault.email}`,
+      eventType: "info",
+      userId: req.user.id,
+      email: req.user.email,
+    });
+
+    res.status(200).json({
+      message: "Fault dismissed",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to dismiss fault" });
   }
 });
 
