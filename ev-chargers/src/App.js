@@ -15,6 +15,7 @@ import UserMap from "./Components/User/UserMap";
 import EventLogs from "./Components/Admin/EventLogs";
 import ManageUsers from "./Components/Admin/ManageUsers";
 import Stations from "./Components/Admin/Stations";
+import Faults from "./Components/Admin/Faults";
 
 function App() {
   return (
@@ -113,6 +114,14 @@ function App() {
                 element={
                   <PrivateRoute allowedRoles={["Admin"]}>
                     <Stations />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/home/admin/faults"
+                element={
+                  <PrivateRoute allowedRoles={["Admin"]}>
+                    <Faults />
                   </PrivateRoute>
                 }
               />

@@ -1,0 +1,35 @@
+.faults-container {
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.faults-list {
+    list-style: none;
+    padding: 0;
+}
+
+.fault-item {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dismiss-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.dismiss-btn:hover {
+    background: darkred;
+}

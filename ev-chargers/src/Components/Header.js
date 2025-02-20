@@ -80,6 +80,20 @@ function Header() {
             </Link>
           </Nav.Item>
         )}
+        {userRole === "Admin" && (
+          <Nav.Item>
+            <Link
+              to="/home/admin/faults"
+              className={`nav-link  ${
+                location.pathname === "/home/admin/faults"
+                  ? "active link-light"
+                  : "link-light hoverLink "
+              }`}
+            >
+              <h3>Faults</h3>
+            </Link>
+          </Nav.Item>
+        )}
 
         {userRole === "User" && (
           <Nav.Item>
