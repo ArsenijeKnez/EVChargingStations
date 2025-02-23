@@ -94,8 +94,11 @@ router.get("/getReservations/SelectedPeriod", verifyUser, async (req, res) => {
   }
   try {
     const reservations = await Reservation.find({
-      start: { $gte: new Date(start) },
-      end: { $lte: new Date(end) },
+      $or: [
+        { start: { $gte: start, $lte: end } },
+        { end: { $gte: start, $lte: end } },
+        { start: { $lte: start }, end: { $gte: end } },
+      ],
     });
     res.status(200).json({ reservations: reservations });
   } catch (err) {
@@ -147,7 +150,9 @@ router.put("/activateReservation", verifyUser, async (req, res) => {
     }
 
     if (reservation.start >= Date.now()) {
-      return res.status(400).send({ message: "Reservation not started yet" });
+      return res
+        .status(400)
+        .send({ message: "Reservation start time not reached." });
     }
 
     station.currentUserInfo = userEmail;

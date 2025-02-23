@@ -166,15 +166,26 @@ const UserMap = () => {
   };
 
   useEffect(() => {
-    if (reservationDateTime.length === 2) {
-      const response = GetReservations(
-        reservationDateTime[0],
-        reservationDateTime[1]
-      );
-      if (response.status === 200) {
-        setReservations(response.data.reservations);
+    const fetchReservations = async () => {
+      const start =
+        reservationDateTime.length === 2 ? reservationDateTime[0] : Date.now();
+      const end =
+        reservationDateTime.length === 2
+          ? reservationDateTime[1]
+          : Date.now() + 600000;
+
+      try {
+        const response = await GetReservations(start, end);
+        if (response.status === 200) {
+          setReservations(response.data.reservations);
+          console.log(response.data.reservations);
+        }
+      } catch (error) {
+        console.error("Error fetching reservations:", error);
       }
-    }
+    };
+
+    fetchReservations();
   }, [reservationDateTime]);
 
   useEffect(() => {
@@ -399,15 +410,16 @@ const UserMap = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {stations.map((station) => {
+            const isReserved = reservations.some(
+              (reservation) => reservation.stationId === station.stationId
+            );
+
             const getStationIcon = (availability) => {
               if (reservation?.stationId === station.stationId) {
                 return userStationIcon;
               }
-              const isReserved = reservations.some(
-                (reservation) => reservation.stationId === station.stationId
-              );
               if (isReserved) {
-                return userStationIcon;
+                return reservedStationIcon;
               }
               switch (availability) {
                 case "Available":
@@ -421,11 +433,13 @@ const UserMap = () => {
               }
             };
 
+            const currentIcon = getStationIcon(station.chargerAvailability);
+
             return (
               <Marker
                 key={station.stationId}
                 position={[station.coordinates.lat, station.coordinates.lng]}
-                icon={getStationIcon(station.chargerAvailability)}
+                icon={currentIcon}
               >
                 <Popup>
                   <div>
@@ -438,7 +452,7 @@ const UserMap = () => {
                     </p>
                     <p>
                       <strong>Availability:</strong>{" "}
-                      {station.chargerAvailability}
+                      {isReserved ? "Reserved" : station.chargerAvailability}
                     </p>
                     {reservation?.stationId !== station.stationId &&
                       station.chargerAvailability === "Available" && (
